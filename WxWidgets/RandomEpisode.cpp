@@ -20,7 +20,7 @@ extern DirectoryHandler dh;
 /*
 
 	TODO:	Need to save the values of the episode, season, and series to a global variable
-			Use this information to be passed into the values to be read tto grab the actual episode information for VLC player
+			Use this information to be passed into the values to be read to grab the actual episode information for VLC player
 			-	Find the episode name based on the episode int number given
 
 */
@@ -46,12 +46,6 @@ std::string RandomEpisode::showRecentEpisodes(int i) {
 }
 
 // -----------------------------------------------------------------------------------------
-
-int RandomEpisode::getRandomNumber(int n) {
-	srand(time(0));
-
-	return rand() % n;
-}
 
 std::string RandomEpisode::getRandomFolder(std::string selectedFolder, int folderIndex) {
 	return dh.getFolderByIndex(selectedFolder, folderIndex);

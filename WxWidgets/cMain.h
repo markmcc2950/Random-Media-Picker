@@ -25,7 +25,7 @@ public:
 
 private:
 	void onResize(wxSizeEvent& event);
-	void setPathLength();
+	void setMediaDirectory();
 
 	wxButton* m_btn1 = nullptr;
 	wxButton* m_btn2 = nullptr;
@@ -52,6 +52,7 @@ private:
 	int randomValue = 0;
 	int loopCounter = 0;
 	int maxLoop = 0;
+	int filesToDisplay = 10;
 
 	int windowWidth = 1280;
 	int windowHeight = 720;

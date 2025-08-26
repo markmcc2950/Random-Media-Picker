@@ -13,7 +13,6 @@ public:
 	std::string tcharToString(TCHAR toConvert[]);
 	std::string showRecentEpisodes(int i);
 
-	int getRandomNumber(int n);														// For quickly grabbing a random value while parsing directories
 	std::string getRandomFolder(std::string selectedFolder, int folderIndex);
 
 	bool openFile(std::string episodePath);

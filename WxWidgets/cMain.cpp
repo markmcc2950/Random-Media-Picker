@@ -25,7 +25,7 @@ cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Episode Generator", wxDefaul
 
 	// Create our buttons
 	m_btn1 = new wxButton(this, 10001, "Generate", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
-	m_btn2 = new wxButton(this, 10002, "Generate\nContinuous", wxPoint(windowWidth * 0.1, windowHeight * 0.2), wxSize(windowWidth * 0.1, windowHeight * 0.05));
+	m_btn2 = new wxButton(this, 10002, "Generate\nContinuous", wxPoint(windowWidth * 0.1, windowHeight * 0.2), wxSize(windowWidth * 0.1, windowHeight * 0.05));		// TODO
 	m_btn3 = new wxButton(this, 10003, "Browse", wxPoint(windowWidth - (windowWidth * 0.2), windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	
 	// Create our string boxes
@@ -65,14 +65,14 @@ cMain::~cMain()
 }
 
 void cMain::setElementSizes() {
-	// Set positions
+	// Set positions based on current window size
 	m_btn1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.1));
 	m_btn2->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.2));
 	m_btn3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.2), windowHeight * 0.1));
 	m_list1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.3));
 	m_list2->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.4));
 
-	// Set dimensions
+	// Set dimensions based on current window size
 	m_btn1->SetSize(wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_btn2->SetSize(wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_btn3->SetSize(wxSize(windowWidth * 0.1, windowHeight * 0.05));
@@ -80,7 +80,7 @@ void cMain::setElementSizes() {
 	m_list2->SetSize(wxSize(windowWidth * 0.5, windowHeight * 0.325));
 
 	// Handle m_list3 with its own function
-	setPathLength();
+	setMediaDirectory();
 
 	// Create the fonts and set them for the lists and buttons
 	wxFont btnFont(windowHeight * 0.015, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
@@ -98,8 +98,8 @@ void cMain::initialSettings() {
 	// Populate the recently watched list
 	re.updateRecentWatched(episodeStack);
 
-	// Set how many values to show, max of 10
-	int toDisplay = std::min((int)episodeStack.size(), 10);
+	// Set how many values to show, max of 10 (for now), or if files viewed < 10, only display those
+	int toDisplay = std::min((int)episodeStack.size(), filesToDisplay);
 
 	for (int i = 0; i < toDisplay; i++) {
 		episodeList[i] = episodeStack.top();
@@ -107,25 +107,30 @@ void cMain::initialSettings() {
 		m_list2->AppendString(episodeList[i]);
 	}
 
-	// Populate the browse button (if used before)
+	// Populate the directory where our media is located (if used before)
 	bool loadFile = dh.LoadPathFromFile(selectedDirectory);	
 
 	if (loadFile) {
-		setPathLength();
+		setMediaDirectory();
 	}
 	else {
 		m_list3->Hide();
 		m_btn1->Disable();
-		m_btn2->Disable();			// Will enable when extra logic added
+		m_btn2->Disable();			// This button is for "watch continuous"
 	}
 }
 
-void cMain::setPathLength() {
+void cMain::setMediaDirectory() {
+	// Clear our previous browse path directory
 	if (m_list3) {
 		m_list3->Clear();
 	}
+
+	// Get the character length of our directory path
 	int pathLength = (selectedDirectory.length()) * 5 + 40;
 	int pathListLength = windowWidth * 0.0013 * pathLength;
+
+	// Re-populate the browse list with our new directory path and length, adjusting the UI components accordingly
 	m_list3->SetSize(pathListLength, windowHeight * 0.035);
 	m_list3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - pathListLength, windowHeight * 0.2));
 	m_list3->AppendString(dh.getDirectory());
@@ -140,6 +145,7 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt)
 	BROWSEINFO bi;
 	ZeroMemory(&bi, sizeof(bi));
 
+	// Return only file system paths and in new browse dialog style
 	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
 
 	// Display the "Browse for Folder" dialog box
@@ -149,9 +155,7 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt)
 		TCHAR path[MAX_PATH];
 		if (SHGetPathFromIDList(pidl, path))
 		{
-			std::cout << "Selected folder: " << path << std::endl;
 			std::string newPath = re.tcharToString(path);
-			std::cout << newPath << std::endl;
 			dh.setDirectory(newPath);
 
 			m_btn1->Enable();
@@ -171,11 +175,14 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt)
 	int pathLength = directoryPath.length();
 	pathLength = pathLength * 5 + 40;
 
+	// Only clear the list if it currently exists/has been initialized already
 	if (m_list3 != nullptr) {
 		m_list3->Clear();
 	}
+
+	// If we have a valid path, set the media path and update the UI
 	if (pathLength > 0) {
-		setPathLength();
+		setMediaDirectory();
 	}
 	
 }
@@ -187,8 +194,8 @@ void cMain::findDirectoryPath() {
 
 	while (isValidFolder) {
 		directoryCount = dh.getDirectoryFolderCount(selectedDirectory);
-		if (directoryCount > 0) {																	// Append name to directory
-			rand() % 2 ? randomValue = rand() % directoryCount : randomValue = re.getRandomNumber(directoryCount);
+		if (directoryCount > 0) {
+			randomValue = rand() % directoryCount;
 
 			std::string nextFolder = re.getRandomFolder(selectedDirectory, randomValue);			// Get name of randomly chosen folder
 			selectedDirectory += "//" + nextFolder;
@@ -213,21 +220,27 @@ void cMain::findDirectoryPath() {
 					m_list1->AppendString(selectedDirectory);
 
 					// Don't show the first episode, but update the list after each episode
-					if (selectedDirectory != "") {
+					if (selectedDirectory != "" && filesToDisplay > 0) {
 						m_list2->Clear();						
 
-						for (int i = 0; i < 10; i++) {
+						// Clear our list of viewed episodes, reappend our updated list
+						for (int i = 0; i < filesToDisplay; i++) {
 							m_list2->AppendString(episodeList[i]);
 						}
 
-						for (int i = 9; i > 0; i--) {
+						// Reverse the list to show latest watched first
+						for (int i = filesToDisplay - 1; i > filesToDisplay / 2; i--) {
+							std::string temp = episodeList[i];
 							episodeList[i] = episodeList[i - 1];
+							episodeList[i - 1] = temp;
 						}
 
+						// Finally, append our latest valid selected media as most recently watched
 						episodeList[0] = selectedDirectory;
 					}
+					// Reset our loop counter and re-enable our button to search again, exit from the loop
 					maxLoop = 0;
-					m_btn1->Enable();																// Re-Enable the button to be able to search again
+					m_btn1->Enable();
 
 					break;
 				}
@@ -247,13 +260,16 @@ void cMain::findDirectoryPath() {
 		}
 
 		++loopCounter;
-		if (loopCounter >= 10 && isValidFolder) {													// If we're too many folders in, reset
+		// Corner case: If we're too many folders deep, reset the search loop, reduce the loopCounter by half to not fully reset, but try not to get stuck in infinite loops
+		if (loopCounter >= 10 && isValidFolder) {
 			isValidFolder = true;
 			selectedDirectory = dh.getDirectory();
-			loopCounter = 0;
+			loopCounter = loopCounter / 2;
 		}
 
 		++maxLoop;
+
+		// Terminate the search if we've gone for too long
 		if (maxLoop >= 10000) {
 			std::string errorDisplay = "ERROR! Unable to find an episode: " + selectedDirectory;
 
@@ -274,9 +290,8 @@ void cMain::OnRandomButtonClicked(wxCommandEvent& evt)
 	m_list1->Clear();
 	m_list1->AppendString("SEARCHING...");
 
-	// Get the number of folders within the selected directory
+	// Pull from the stored selected media directory
 	selectedDirectory = dh.getDirectory();
-	//bool isValidFolder = true;
 
 	// Grab a random series, season, and episode
 	findDirectoryPath();
