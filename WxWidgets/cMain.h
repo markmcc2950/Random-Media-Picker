@@ -3,8 +3,8 @@
 #include <stack>
 #include <string>
 #include <unordered_map>
-#include "RandomEpisode.h"
 #include "DirectoryHandler.h"
+#include "RandomEpisode.h"
 
 class cMain : public wxFrame {
 public:
@@ -12,7 +12,6 @@ public:
 	~cMain();
 
 public:
-	void findDirectoryPath();
 	void OnRandomButtonClicked(wxCommandEvent& evt);
 	void setElementSizes();
 	void initialSettings();
@@ -26,6 +25,7 @@ public:
 private:
 	void onResize(wxSizeEvent& event);
 	void setMediaDirectory();
+	void selectRandomEpisode();
 
 	wxButton* m_btn1 = nullptr;
 	wxButton* m_btn2 = nullptr;
@@ -38,7 +38,7 @@ private:
 	wxListBox* m_list3 = nullptr;
 
 	std::string recentEpisode = "";
-	std::string episodeList[10];
+	std::vector<std::string> episodeList;
 	std::string vlcPath = "";
 	std::string selectedDirectory = "";
 
@@ -51,7 +51,6 @@ private:
 	int fileCount = 0;
 	int randomValue = 0;
 	int loopCounter = 0;
-	int maxLoop = 0;
 	int filesToDisplay = 10;
 
 	int windowWidth = 1280;

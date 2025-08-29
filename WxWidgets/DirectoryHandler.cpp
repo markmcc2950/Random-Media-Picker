@@ -7,6 +7,7 @@
 #include <fstream>
 
 DirectoryHandler dh;
+extern RandomEpisode re;
 
 std::string DirectoryHandler::getDirectory() {
 	return folderPath;
@@ -159,11 +160,81 @@ std::string DirectoryHandler::formatFinalDirectory(const std::string& input, con
         if (isFinalFormat) {
             counter == 0 ? tempReplacement = ": " : tempReplacement = ", ";
 
-            ++counter;                                                          // Increment only in final formatting, tells us to replace differently
+            ++counter;                                                          // Increment only in final formatting, tells us to replace with different characters
         }
         result.replace(pos, target.length(), tempReplacement);
         pos += tempReplacement.length();                                        // Move past the replacement
     }
 
     return result;
+}
+
+std::string DirectoryHandler::getRandomFolder(std::string selectedFolder, int folderIndex) {
+    return dh.getFolderByIndex(selectedFolder, folderIndex);
+}
+
+bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::string& vlcPath, std::vector<std::string>& episodeList, int& filesToDisplay) {
+    bool isValidFolder = true;
+
+    int directoryCount, fileCount, randomValue = -1;
+    int loopCounter = 0;
+
+    srand(time(0));
+
+    while (isValidFolder) {
+        directoryCount = dh.getDirectoryFolderCount(selectedDirectory);
+        if (directoryCount > 0) {
+            randomValue = rand() % directoryCount;
+
+            std::string nextFolder = dh.getRandomFolder(selectedDirectory, randomValue);			// Get name of randomly chosen folder
+            selectedDirectory += "//" + nextFolder;
+        }
+        else {																						// If we return no more folders
+            fileCount = dh.getNumFilesInFolder(selectedDirectory);
+            if (fileCount > 0) {
+                randomValue = rand() % fileCount;
+                vlcPath = selectedDirectory;
+                selectedDirectory += "//Episode " + std::to_string(randomValue + 1);
+
+                // Format our string prior to checking with the written file
+                selectedDirectory = dh.formatFinalDirectory(selectedDirectory, "//", "\\", false);
+                selectedDirectory = dh.formatFinalDirectory(selectedDirectory, dh.getDirectory() + "\\", "", false);
+                selectedDirectory = dh.formatFinalDirectory(selectedDirectory, "\\", "", true);
+
+                // Returns false if we HAVEN'T watched it yet
+                if (!re.hasEpisodeBeenViewed(selectedDirectory)) {
+                    return true;
+                    isValidFolder = false;
+                }
+                // If we have watched it, reset and continue searching
+                else {
+                    isValidFolder = true;
+                    selectedDirectory = dh.getDirectory();
+                    loopCounter = -1;
+                }
+            }
+            // We selected an empty folder, reset search
+            else {
+                isValidFolder = true;
+                selectedDirectory = dh.getDirectory();
+                loopCounter = 0;
+            }
+        }
+
+        ++loopCounter;
+        // Corner case: If we're too many folders deep, reset the search loop, reduce the loopCounter by half to not fully reset, but try not to get stuck in infinite loops
+        if (loopCounter >= 10 && isValidFolder) {
+            isValidFolder = true;
+            selectedDirectory = dh.getDirectory();
+            loopCounter = loopCounter / 2;
+        }
+
+        ++loopCounter;
+
+        // Terminate the search if we've gone for too long
+        if (loopCounter >= 10000) {
+            return false;
+        }
+    }
+    return false;
 }

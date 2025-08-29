@@ -3,17 +3,14 @@
 #define RandomEpisode_h
 #include <stack>
 #include <string>
+#include <tchar.h>
 #include <unordered_map>
 #include <vector>
-
-#include "DirectoryHandler.h"
 
 class RandomEpisode {
 public:
 	std::string tcharToString(TCHAR toConvert[]);
 	std::string showRecentEpisodes(int i);
-
-	std::string getRandomFolder(std::string selectedFolder, int folderIndex);
 
 	bool openFile(std::string episodePath);
 	void updateRecentWatched(std::stack<std::string>& episodeStack);
@@ -36,11 +33,5 @@ private:
 
 	std::unordered_map<std::string, bool> episodesViewedHash;
 };
-
-
-
-
-
-
 
 #endif

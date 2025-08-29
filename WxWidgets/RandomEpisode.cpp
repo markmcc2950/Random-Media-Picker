@@ -15,8 +15,6 @@
 
 #include "RandomEpisode.h"
 
-extern DirectoryHandler dh;
-
 /*
 
 	TODO:	Need to save the values of the episode, season, and series to a global variable
@@ -44,14 +42,6 @@ std::string RandomEpisode::tcharToString(TCHAR toConvert[]) {
 std::string RandomEpisode::showRecentEpisodes(int i) {
 	return recentEpisodesList[i];
 }
-
-// -----------------------------------------------------------------------------------------
-
-std::string RandomEpisode::getRandomFolder(std::string selectedFolder, int folderIndex) {
-	return dh.getFolderByIndex(selectedFolder, folderIndex);
-}
-
-// -----------------------------------------------------------------------------------------
 
 bool RandomEpisode::openFile(std::string episodePath) {
 	// Get the application (VLC) to use
@@ -108,7 +98,7 @@ void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack) {
 
 	while (std::getline(brFile, line)) {
 		episodeVector.push_back(line);
-		//episodesViewedHash[line] = true;
+		episodesViewedHash[line] = true;
 	}
 	brFile.close();
 	
