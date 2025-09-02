@@ -11,6 +11,7 @@ cApp::~cApp() {
 }
 
 bool cApp::OnInit() {
+	wxInitAllImageHandlers();
 	m_frame1 = new cMain();
 	m_frame1->Show();
 

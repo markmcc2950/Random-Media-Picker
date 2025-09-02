@@ -1,8 +1,1 @@
-﻿  cMain.cpp
-C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\cMain.cpp(3,10): warning C4067: unexpected tokens following preprocessor directive - expected a newline
-  Generating code
-  0 of 1381 functions ( 0.0%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    0 functions had inline decision re-evaluated but remain unchanged
-  Finished generating code
-  WxWidgets.vcxproj -> C:\Users\markm\Documents\GitHub\Random-Media-Picker\Release\RandomEpisodeViewer.exe
+﻿C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\WxWidgets.vcxproj(86,5): error MSB4019: The imported project "C:\wxWidgets-3.3.1\wxwidgets.props" was not found. Confirm that the expression in the Import declaration "..\..\..\..\..\..\wxWidgets-3.3.1\wxwidgets.props" is correct, and that the file exists on disk.

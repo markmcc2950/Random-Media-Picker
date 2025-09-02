@@ -14,9 +14,9 @@ public:
 	std::string showRecentEpisodes(int i);
 
 	bool openFile(std::string episodePath);
-	void retrieveAllViewed(std::stack<std::string>& episodeStack, std::vector<std::string>& recentWatched, std::unordered_map<std::string, bool>& episodesViewedHash);
+	void retrieveAllViewed(std::stack<std::string>& episodeStack, std::vector<std::string>& recentWatched, std::unordered_map<std::string, bool>& episodesViewedHash, int& filesToDisplay);
 	void storeRecentWatched(std::string write, std::unordered_map<std::string, bool>& episodesViewedHash);
-	void updateRecentWatched(std::stack<std::string>& episodeStack, std::vector<std::string>& recentWatched);
+	void updateRecentWatched(std::stack<std::string>& episodeStack, std::vector<std::string>& recentWatched, int& filesToDisplay);
 private:
 	// Private variables
 	bool searching = true;

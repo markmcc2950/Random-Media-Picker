@@ -13,3 +13,7 @@
 .vs/RandomEpisodeViewer/v16/ipch/AutoPCH/c80fbd852c5ead48/CMAIN.ipch
 .vs/RandomEpisodeViewer/v16/ipch/AutoPCH/d25ef5622c45e616/CAPP.ipch
 .vs/RandomEpisodeViewer/v16/ipch/AutoPCH/1860e82b172164ec/CAPP.ipch
+.vs/RandomEpisodeViewer/v17/ipch/AutoPCH/6910527f8e7a3c4b/DIRECTORYHANDLER.ipch
+*.ipch
+*.vsidx
+*.vs/

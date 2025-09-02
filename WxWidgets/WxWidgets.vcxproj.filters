@@ -46,14 +46,8 @@
     <Text Include="EpisodesViewed.txt">
       <Filter>Resource Files</Filter>
     </Text>
-    <Text Include="HIMYM.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="PnR.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
-    <Text Include="RnM.txt">
-      <Filter>Resource Files</Filter>
-    </Text>
+    <Text Include="HIMYM.txt" />
+    <Text Include="PnR.txt" />
+    <Text Include="RnM.txt" />
   </ItemGroup>
 </Project>
