@@ -64,7 +64,7 @@ bool RandomEpisode::openFile(std::string episodePath) {
 		return false;
 	}
 
-	// Wait for the VLC process to exit
+	// Wait for the VLC process to exit (Set to INFINITE to wait for the episode to end and VLC to close)
 	WaitForSingleObject(processInfo.hProcess, INFINITE);
 
 	// Close process and thread handles
@@ -75,10 +75,12 @@ bool RandomEpisode::openFile(std::string episodePath) {
 	return true;
 }
 
-void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack) {
-	std::ifstream brFile("EpisodesViewed.txt");
-	if (!brFile) {
-		// File doesn't exist, create it
+// Grabs all previously viewed episodes
+void RandomEpisode::retrieveAllViewed(std::stack<std::string>& episodeStack, std::vector<std::string>& episodeList, std::unordered_map<std::string, bool>& episodesViewedHash) {
+	std::ifstream viewedFile("EpisodesViewed.txt");
+
+	// If the file doesn't exist, create it and exit this function early as we don't have anything to pull
+	if (!viewedFile) {
 		std::ofstream createFile("EpisodesViewed.txt");
 		if (createFile) {
 			std::cout << "Created EpisodesViewed.txt" << std::endl;
@@ -87,105 +89,39 @@ void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack) {
 		else {
 			std::cerr << "Failed to create EpisodesViewed.txt" << std::endl;
 		}
-		// Reopen the file
-		brFile.open("EpisodesViewed.txt");
+
+		return;
 	}
-	
 
-	int episodesViewed = totalEpisodesViewed();
 	std::string line;
-	std::vector<std::string> episodeVector;
 
-	while (std::getline(brFile, line)) {
-		episodeVector.push_back(line);
+	// Iterate through each line in our file, push to our vector, and set our hash map to "viewed"
+	while (std::getline(viewedFile, line)) {
+		episodeList.push_back(line);
 		episodesViewedHash[line] = true;
 	}
-	brFile.close();
-	
-	int maxEpisodesToStore = std::min(10, (int)episodeVector.size());
 
-	for (int i = episodeVector.size() - maxEpisodesToStore; i < episodeVector.size(); i++) {
-		episodeStack.push(episodeVector[i]);
-	}
-	
-	int listSize = recentEpisodesList.size();
-	if (listSize > 1) {
-		for (int i = 0; i < listSize / 2; i++) {
-			std::swap(recentEpisodesList[i], recentEpisodesList[listSize - 1 - i]);
-		}
+	viewedFile.close();
+
+	updateRecentWatched(episodeStack, episodeList);	
+}
+
+void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack, std::vector<std::string>& episodeList) {
+	// Iterate only through the number of episodes viewed to prevent out of range index values
+	int i = episodeList.size() < 10 ? 0 : episodeList.size() - 10;
+	for (i; i < episodeList.size(); i++) {
+		episodeStack.push(episodeList[i]);
 	}
 }
 
-int RandomEpisode::totalEpisodesViewed() {
-	/*
-		This section checks how many episodes have been viewed. This assists in parsing the files later to know when to end
-	*/
-	std::ifstream fileViewed("EpisodesViewed.txt");
-	std::string lineViewed;
-
-	int viewedCounter = 0;
-	if (fileViewed.is_open()) {
-		while (std::getline(fileViewed, lineViewed)) {
-			viewedCounter++;
-		}
-		fileViewed.close();
-	}
-	return viewedCounter;
-}
-
-void RandomEpisode::writeToFile(std::string toWrite) {													// Called when needed to write the found episode
+// Add newly watched episodes to file and hash map
+void RandomEpisode::storeRecentWatched(std::string toWrite, std::unordered_map<std::string, bool>& episodesViewedHash) {
 	std::ofstream brFile2;
 	brFile2.open("EpisodesViewed.txt", std::ios_base::app);
 	if (brFile2.is_open()) {
 			brFile2 << toWrite << "\n";
 	}
 	brFile2.close();
-}
 
-bool RandomEpisode::findViewed(std::string search, int ctr) {
-	int counter = 0;	
-
-	std::ifstream episodeFile("EpisodesViewed.txt");								// Open EpisodesViewed file to check if episode's been viewed
-
-	if (!episodeFile.is_open()) {
-		std::cerr << "Unable to open EpisodesViewed.txt" << std::endl;
-		return false;
-	}
-
-	// Check if file is empty
-	if (episodeFile.peek() == std::ifstream::traits_type::eof()) {		
-		foundEpisode = search;
-		episodeFile.close();
-		writeToFile(search);
-		searching = false;													// Stop searching
-		return false;														// Stops the loop of searching through files
-	}
-
-	std::string line = "";
-
-	while (std::getline(episodeFile, line) && searching) {
-		++counter;																// Counts how many lines have been viewed
-		if (line.find(search, 0) != std::string::npos) {						// If there's a match, return true
-			episodeFile.close();
-			return true;
-			break;
-		}
-		else if (counter >= (ctr)) {
-			foundEpisode = search;
-			episodeFile.close();
-			writeToFile(search);
-			searching = false;													// Stop searching
-			return false;														// Stops the loop of searching through files
-			break;
-		}
-	}
-
-	episodeFile.close();
-	return false;
-}
-
-bool RandomEpisode::hasEpisodeBeenViewed(static std::string& episode) {
-	int episodeCounter = totalEpisodesViewed();
-	searching = true;
-	return findViewed(episode, episodeCounter);
+	episodesViewedHash[toWrite] = true;
 }

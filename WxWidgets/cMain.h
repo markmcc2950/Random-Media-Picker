@@ -26,6 +26,7 @@ private:
 	void onResize(wxSizeEvent& event);
 	void setMediaDirectory();
 	void selectRandomEpisode();
+	void appendEpisodesList();
 
 	wxButton* m_btn1 = nullptr;
 	wxButton* m_btn2 = nullptr;
@@ -44,12 +45,13 @@ private:
 
 	std::vector<std::string> recentWatched;
 	std::stack<std::string> episodeStack;
+	std::unordered_map<std::string, bool> episodesViewedHash;
 
 	bool episodePicked = false;
 
 	int directoryCount = 0;
 	int fileCount = 0;
-	int randomValue = 0;
+	int randomValue = -1;
 	int loopCounter = 0;
 	int filesToDisplay = 10;
 

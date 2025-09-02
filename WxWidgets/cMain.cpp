@@ -94,17 +94,10 @@ void cMain::setElementSizes() {
 
 void cMain::initialSettings() {
 	// Populate the recently watched list
-	re.updateRecentWatched(episodeStack);
+	re.retrieveAllViewed(episodeStack, episodeList, episodesViewedHash);
 
-	// Set how many values to show, max of 10 (for now), or if files viewed < 10, only display those
-	int toDisplay = std::min((int)episodeStack.size(), filesToDisplay);
-	episodeList.resize(10);																		// Allocate the size needed for our episodeList vector
-
-	for (int i = 0; i < toDisplay; i++) {
-		episodeList[i] = episodeStack.top();
-		episodeStack.pop();
-		m_list2->AppendString(episodeList[i]);
-	}
+	appendEpisodesList();
+	
 
 	// Populate the directory where our media is located (if used before)
 	bool loadFile = dh.LoadPathFromFile(selectedDirectory);	
@@ -116,6 +109,18 @@ void cMain::initialSettings() {
 		m_list3->Hide();
 		m_btn1->Disable();
 		m_btn2->Disable();			// This button is for "watch continuous"
+	}
+}
+
+void cMain::appendEpisodesList() {
+	// Set how many values to show, max of 10 (for now), or if files viewed < 10, only display those
+	int toDisplay = std::min((int)episodeStack.size(), filesToDisplay);
+	episodeList.resize(10);																		// Allocate the size needed for our episodeList vector
+
+	for (int i = 0; i < toDisplay; i++) {
+		episodeList[i] = episodeStack.top();
+		episodeStack.pop();
+		m_list2->AppendString(episodeList[i]);
 	}
 }
 
@@ -138,34 +143,48 @@ void cMain::setMediaDirectory() {
 	m_btn2->Enable();
 }
 
+// Used in tandem with onBrowseButtonClicked to help with navigating us to the currently stored path (if it exists)
+int CALLBACK BrowseCallbackProc(HWND hwnd, UINT uMsg, LPARAM lParam, LPARAM lpData) {
+	if (uMsg == BFFM_INITIALIZED) {
+		const wchar_t* initialPath = reinterpret_cast<const wchar_t*>(lpData);
+		if (initialPath && initialPath[0] != L'\0') {
+			SendMessageW(hwnd, BFFM_SETSELECTIONW, TRUE, (LPARAM)initialPath);
+		}
+	}
+	return 0;
+}
+
 void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
-	// Initialize the BROWSEINFO structure
-	BROWSEINFO bi;
+	std::string storedPath = dh.getDirectory();
+
+	// Convert std::string to std::wstring for Unicode
+	std::wstring wCurrentPath(storedPath.begin(), storedPath.end());
+
+	BROWSEINFOW bi;
 	ZeroMemory(&bi, sizeof(bi));
+	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE | BIF_USENEWUI;
+	bi.lpfn = BrowseCallbackProc;
+	bi.lParam = (LPARAM)(wCurrentPath.empty() ? nullptr : wCurrentPath.c_str());
+	bi.hwndOwner = NULL;
+	bi.lpszTitle = L"Select Media Directory";
 
-	// Return only file system paths and in new browse dialog style
-	bi.ulFlags = BIF_RETURNONLYFSDIRS | BIF_NEWDIALOGSTYLE;
+	LPITEMIDLIST pidl = SHBrowseForFolderW(&bi); // Unicode version
+	if (pidl != nullptr) {
+		wchar_t path[MAX_PATH];
+		if (SHGetPathFromIDListW(pidl, path)) {
+			// Convert back to std::string
+			std::wstring wpath(path);
+			std::string newPath(wpath.begin(), wpath.end());
 
-	// Display the "Browse for Folder" dialog box
-	LPITEMIDLIST pidl = SHBrowseForFolder(&bi);
-	if (pidl != NULL)
-	{
-		TCHAR path[MAX_PATH];
-		if (SHGetPathFromIDList(pidl, path))
-		{
-			std::string newPath = re.tcharToString(path);
 			dh.setDirectory(newPath);
-
 			m_btn1->Enable();
 		}
-		else
-		{
+		else {
 			std::cout << "Error: Failed to retrieve folder path." << std::endl;
 		}
 		CoTaskMemFree(pidl);
 	}
-	else
-	{
+	else {
 		std::cout << "No folder selected." << std::endl;
 	}
 
@@ -173,12 +192,10 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 	int pathLength = directoryPath.length();
 	pathLength = pathLength * 5 + 40;
 
-	// Only clear the list if it currently exists/has been initialized already
 	if (m_list3 != nullptr) {
 		m_list3->Clear();
 	}
 
-	// If we have a valid path, set the media path and update the UI
 	if (pathLength > 0) {
 		setMediaDirectory();
 	}
@@ -194,7 +211,7 @@ void cMain::selectRandomEpisode() {
 	selectedDirectory = dh.getDirectory();
 
 	// Find the file and folders
-	if (dh.findDirectoryPath(selectedDirectory, vlcPath, episodeList, filesToDisplay)) {
+	if (dh.findDirectoryPath(selectedDirectory, vlcPath, episodeList, filesToDisplay, randomValue, episodesViewedHash)) {
 		m_list1->Clear();
 		m_list1->AppendString(selectedDirectory);
 
@@ -207,22 +224,27 @@ void cMain::selectRandomEpisode() {
 				m_list2->AppendString(episodeList[i]);
 			}
 
-			// Reverse the list to show latest watched first
-			for (int i = filesToDisplay - 1; i > filesToDisplay / 2; i--) {
-				std::string temp = episodeList[i];
-				episodeList[i] = episodeList[i - 1];
-				episodeList[i - 1] = temp;
-			}
+			// Append the new episode and reverse the list to show latest watched first
+			episodeList.insert(episodeList.begin(), selectedDirectory);
 
-			// Finally, append our latest valid selected media as most recently watched
-			episodeList[0] = selectedDirectory;
+			episodeList.resize(10);
 		}
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
 		m_btn1->Enable();
+
+		std::string episodeName = dh.getFileByIndex(vlcPath, randomValue);						// Given an index, returns the name of the file in the folder
+		vlcPath += "\\" + episodeName;
+		vlcPath = dh.normalizePath(vlcPath, "//", "\\");
+
+		// Store information in our hash and local file to reference that it's been watched
+		re.storeRecentWatched(selectedDirectory, episodesViewedHash);
+		re.updateRecentWatched(episodeStack, episodeList);
+
+		re.openFile(vlcPath);
 	}
 	else {
-		std::string errorDisplay = "ERROR! Unable to find an episode: " + selectedDirectory;
+		std::string errorDisplay = "ERROR! Unable to find unviewed episode: " + selectedDirectory;
 
 		m_list1->Clear();
 		m_list1->AppendString(errorDisplay);
@@ -230,18 +252,6 @@ void cMain::selectRandomEpisode() {
 		m_btn1->Enable();																	// Re-Enable the button to be able to search again
 		loopCounter = 0;
 	}
-
-	std::string episodeName = dh.getFileByIndex(vlcPath, randomValue);
-	vlcPath += "\\" + episodeName;
-	vlcPath = dh.formatFinalDirectory(vlcPath, "//", "\\", false);
-
-	re.openFile(vlcPath);
-
-	// Views episodes continuously until user closes the application
-	//if (re.openFile(vlcPath)) {
-	//	OnRandomButtonClicked(evt);
-	//}
-	re.updateRecentWatched(episodeStack);
 }
 
 void cMain::OnRandomButtonClicked(wxCommandEvent& evt) {
