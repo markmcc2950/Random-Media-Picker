@@ -112,6 +112,8 @@ void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack, s
 	for (i; i < episodeList.size(); i++) {
 		episodeStack.push(episodeList[i]);
 	}
+
+	std::cout << "DEBUG";
 }
 
 // Add newly watched episodes to file and hash map

@@ -14,27 +14,71 @@ EVT_BUTTON(10002, onContinuousButtonClicked)
 EVT_BUTTON(10003, onBrowseButtonClicked)
 EVT_BUTTON(10004, onContinuousButtonClicked)
 EVT_BUTTON(10005, onNoPromptButtonClicked)
+EVT_RADIOBUTTON(20001, onRadioButtonClicked)
+EVT_RADIOBUTTON(20002, onRadioButtonClicked)
+EVT_RADIOBUTTON(20003, onRadioButtonClicked)
 wxEND_EVENT_TABLE()
 
 RandomEpisode re;
 extern DirectoryHandler dh;
 
 cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Episode Generator", wxDefaultPosition, wxDefaultSize) {
+	// Create UI and initialize all settings (such as pulling info from our local list of stored viewed episodes)
+	createUI();
+	initialSettings();
+
+	// Bind the event handler that detects when window is resized
+	this->Bind(wxEVT_SIZE, &cMain::onResize, this);
+}
+
+cMain::~cMain() {
+	DestroyButton(m_btn1);
+	DestroyButton(m_btn2);
+	DestroyButton(m_btn3);
+	DestroyButton(m_btn4);
+	DestroyButton(m_btn5);
+	DestroyListBox(m_list1);
+	DestroyListBox(m_list2);
+	DestroyListBox(m_list3);
+}
+
+void cMain::setNumToShow(int n) {
+	filesToDisplay = n;
+	
+	// Clear the list if it's been populated already
+	if (m_list2) {
+		m_list2->Clear();
+	}
+
+	for (int i = episodeList.size() - 1; i >= std::min((int)episodeList.size() - filesToDisplay, filesToDisplay); i--) {
+		if (i >= 0) {
+			m_list2->AppendString(episodeList[i]);
+		}
+
+		// In case we go into negative index values
+		else {
+			break;
+		}
+	}
+}
+
+void cMain::createUI() {
 	// Manually set size to our screen's current dimensions
 	SetSize(windowWidth, windowHeight);
-	SetMinSize(wxSize(640, 320));
-	//Maximize(true);
+	SetMinSize(wxSize(minDimensions, minDimensions));
+
+	SetBackgroundColour(bgColor);
 
 	// Create our buttons
-	m_btn1 = new wxButton(this, 10001, "Generate", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
-	m_btn2 = new wxButton(this, 10002, "Generate\nContinuous", wxPoint(windowWidth * 0.1, windowHeight * 0.2), wxSize(windowWidth * 0.1, windowHeight * 0.05));
-	m_btn3 = new wxButton(this, 10003, "Browse", wxPoint(windowWidth - (windowWidth * 0.2), windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
-	
+	m_btn1 = new wxButton(this, 10001, "Watch Random", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
+	m_btn2 = new wxButton(this, 10002, "Watch\nContinuous", wxPoint(windowWidth * 0.1, windowHeight * 0.2), wxSize(windowWidth * 0.1, windowHeight * 0.05));
+	m_btn3 = new wxButton(this, 10003, "Select\nMedia Path", wxPoint(windowWidth - (windowWidth * 0.2), windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
+
 	// Buttons exclusive to prompts (like are you still watching)
 	m_btn4 = new wxButton(this, 10004, "Yes", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_btn5 = new wxButton(this, 10005, "No", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_label1 = new wxStaticText(this, wxID_ANY, "ARE YOU STILL THERE?", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
-	
+
 	// Create our string boxes
 		/*
 			- list1: Most recent picked (empty until an episode is picked)
@@ -47,75 +91,92 @@ cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Episode Generator", wxDefaul
 	// Create the directory string box, but hide it
 	m_list3 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.5, windowHeight * 0.2), wxSize(windowWidth * 0.5, windowHeight * 0.2));
 
-	setElementSizes();
+	// Radio buttons
+	m_radio1 = new wxRadioButton(this, 20001, wxString::Format("%d", radio1Val), wxPoint(windowWidth * 0.2, windowHeight * 0.8), wxSize(50, 50));
+	m_radio2 = new wxRadioButton(this, 20002, wxString::Format("%d", radio2Val), wxPoint(windowWidth * 0.5, windowHeight * 0.8), wxSize(50, 50));
+	m_radio3 = new wxRadioButton(this, 20003, wxString::Format("%d", radio3Val), wxPoint(windowWidth * 0.8, windowHeight * 0.8), wxSize(50, 50));
+
+	setElementStyles();
 
 	// Set tool tips for the buttons
 	m_btn1->SetToolTip("Play a Random Episode");
 	m_btn2->SetToolTip("Continuous Play Random Episodes");
 	m_btn3->SetToolTip("Select Your Media Path");
+	// Radio buttons
+	m_radio1->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", radio1Val));
+	m_radio2->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", radio2Val));
+	m_radio3->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", radio3Val));
 
 	// Hide prompt-specific UI
 	m_btn4->Hide();
 	m_btn5->Hide();
 	m_label1->Hide();
-
-	// Initialize all settings now that the UI is initialized
-	initialSettings();
-
-	// Bind the event handler that detects when window is resized
-	this->Bind(wxEVT_SIZE, &cMain::onResize, this);
 }
 
-cMain::~cMain() {
-	DestroyButton(m_btn1);
-	DestroyButton(m_btn2);
-	DestroyButton(m_btn3);
-	DestroyListBox(m_list1);
-	DestroyListBox(m_list2);
-	DestroyListBox(m_list3);
-}
+void cMain::setElementStyles() {
+	buttonWidth = std::max(windowWidth * 0.15, (double)minDimensions / 16);
+	buttonHeight = std::max(windowHeight * 0.075, (double)minDimensions / 32);
+	int largerDimension = std::max(windowWidth, windowHeight);
 
-void cMain::setElementSizes() {
 	// Set positions based on current window size
 	m_btn1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.1));
-	m_btn2->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.2));
-	m_btn3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.2), windowHeight * 0.1));
-	m_list1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.3));
-	m_list2->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.4));
+	m_btn2->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.1));
+	m_btn3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - buttonWidth, windowHeight * 0.1));
+	m_list1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.25));
+	m_list2->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.3));
+	m_radio1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.8));
+	m_radio2->SetPosition(wxPoint(windowWidth * 0.2, windowHeight * 0.8));
+	m_radio3->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.8));
 
 	// Set special prompt dimensions and locations
 	m_btn4->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.5));
 	m_btn5->SetPosition(wxPoint(windowWidth - (windowWidth * 0.5), windowHeight * 0.5));
-	m_btn4->SetSize(wxSize(std::max(windowWidth * 0.2, 64.0), std::max(windowHeight * 0.1, 32.0)));
-	m_btn5->SetSize(wxSize(std::max(windowWidth * 0.2, 64.0), std::max(windowHeight * 0.1, 32.0)));
+	m_btn4->SetSize(wxSize(std::max(windowWidth * 0.2, 64.0), std::max(windowHeight * 0.1, (double)minDimensions / 8)));
+	m_btn5->SetSize(wxSize(std::max(windowWidth * 0.2, 64.0), std::max(windowHeight * 0.1, (double)minDimensions / 8)));
 
-	m_label1->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.3));
+	// "Are you still there" text and sizing
 	wxFont textFont(std::max(windowWidth * 1.0 * 0.025, 6.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+	m_label1->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.3));	
 	m_label1->SetFont(textFont);
 
 	// Set dimensions based on current window size
-	m_btn1->SetSize(wxSize(std::max(windowWidth * 0.1, 64.0), std::max(windowHeight * 0.05, 32.0)));
-	m_btn2->SetSize(wxSize(std::max(windowWidth * 0.1, 64.0), std::max(windowHeight * 0.05, 32.0)));
-	m_btn3->SetSize(wxSize(std::max(windowWidth * 0.1, 64.0), std::max(windowHeight * 0.05, 32.0)));
-	m_list1->SetSize(wxSize(std::max(windowWidth * 0.5, 320.0), std::max(windowHeight * 0.035, 15.0)));
-	m_list2->SetSize(wxSize(std::max(windowWidth * 0.5, 320.0), std::max(((windowWidth * 0.05) + windowHeight * 0.325) * 0.9, 15.0)));
+	m_btn1->SetSize(wxSize(buttonWidth, buttonHeight));
+	m_btn2->SetSize(wxSize(buttonWidth, buttonHeight));
+	m_btn3->SetSize(wxSize(buttonWidth, buttonHeight));
+	m_list1->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.035));
+	m_list2->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.4));
+	
+	m_radio1->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
+	m_radio2->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
+	m_radio3->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
 
 	// Create the fonts and set them for the lists and buttons
-	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 1.0) * 0.01, 6.0);
-	wxFont btnFont(std::max(std::max(windowHeight, windowWidth) * 0.008, 6.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
+	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 1.0) * 0.02, (double)minDimensions / 40);
+	wxFont btnFont(std::max(std::max(windowHeight, windowWidth) * 0.012, (double)minDimensions / 80), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
 	wxFont listFont(listFontSize, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+	wxFont radioFont(std::max(listFontSize * 0.5, 8.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
 
 	// Handle m_list3 with its own function
 	setMediaDirectory(listFontSize);
 
+	// Button fonts
 	m_btn1->SetFont(btnFont);
 	m_btn2->SetFont(btnFont);
 	m_btn3->SetFont(btnFont);
 	m_btn4->SetFont(btnFont);
 	m_btn5->SetFont(btnFont);
+
+	// List fonts
 	m_list1->SetFont(listFont);
 	m_list2->SetFont(listFont);
-	m_list3->SetFont(listFont);
+
+	// Radio buttons fonts & text color
+	m_radio1->SetFont(radioFont);
+	m_radio2->SetFont(radioFont);
+	m_radio3->SetFont(radioFont);
+	m_radio1->SetForegroundColour(fgColor);
+	m_radio2->SetForegroundColour(fgColor);
+	m_radio3->SetForegroundColour(fgColor);
 }
 
 void cMain::initialSettings() {
@@ -130,7 +191,7 @@ void cMain::initialSettings() {
 
 	if (loadFile) {
 		m_list3->SetToolTip(selectedDirectory);
-		setElementSizes();
+		setElementStyles();
 	}
 	else {
 		m_list3->Hide();
@@ -140,15 +201,15 @@ void cMain::initialSettings() {
 }
 
 void cMain::appendEpisodesList() {
-	// Set how many values to show, max of 10 (for now), or if files viewed < 10, only display those
+	// Set how many values to show, max of filesToDisplay (for now), or if files viewed < filesToDisplay, only display those
 	int toDisplay = std::min((int)episodeStack.size(), filesToDisplay);
-	episodeList.resize(filesToDisplay);																		// Allocate the size needed for our episodeList vector
 
 	for (int i = 0; i < toDisplay; i++) {
-		episodeList[i] = episodeStack.top();
-		episodeStack.pop();
-		m_list2->AppendString(episodeList[i]);
+		m_list2->AppendString(episodeStack.top());
+		episodeStack.pop();		
 	}
+
+	std::cout << "DEBUG";
 }
 
 void cMain::setMediaDirectory(int fontSize) {
@@ -157,15 +218,21 @@ void cMain::setMediaDirectory(int fontSize) {
 		m_list3->Clear();
 	}
 
+	wxFont listFont(fontSize * 0.75, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+
+	m_list3->AppendString(dh.getDirectory());
+	m_list3->SetFont(listFont);
+
 	// Get the character length of our directory path
-	int pathLength = std::min((selectedDirectory.length()) * fontSize * 0.4 + 40, windowWidth * 0.5);
+	wxSize textSize = m_list3->GetTextExtent(selectedDirectory);
+	int pathLength = (selectedDirectory.length()) * fontSize * 0.4 + 40;
 	int pathListLength = windowWidth * 0.0013 * pathLength;
 
 	// Re-populate the browse list with our new directory path and length, adjusting the UI components accordingly
-	m_list3->SetSize(pathListLength, fontSize * 2);
-	// SetSize(wxSize(std::max(windowWidth * 0.5, 320.0), std::max(windowHeight * 0.035, 15.0)));
-	m_list3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - pathListLength, windowHeight * 0.2));
-	m_list3->AppendString(dh.getDirectory());
+	m_list3->SetSize(textSize.GetWidth() + 20, textSize.GetHeight() + 10);
+	m_list3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - textSize.GetWidth() - 20, windowHeight * 0.1 + (buttonHeight * 1.15)));
+
+	
 	
 	// Only show this path if we aren't in a "Watch Continuous" loop
 	if (!watchingCts) {
@@ -232,7 +299,7 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 	}
 
 	if (pathLength > 0) {
-		setElementSizes();
+		setElementStyles();
 	}
 }
 
@@ -261,8 +328,6 @@ void cMain::selectRandomEpisode() {
 
 			// Append the new episode and reverse the list to show latest watched first
 			episodeList.insert(episodeList.begin(), selectedDirectory);
-
-			episodeList.resize(filesToDisplay);
 		}
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
@@ -309,17 +374,9 @@ void cMain::onContinuousButtonClicked(wxCommandEvent& evt) {
 			ctsCtr++;
 		}
 		else {
-			// Hide main UI for prompt
-			m_btn1->Hide();
-			m_btn2->Hide();
-			m_btn3->Hide();
-			m_list1->Hide();
-			m_list2->Hide();
-			m_list3->Hide();
-
-			m_btn4->Show();
-			m_btn5->Show();
-			m_label1->Show();
+			// Hide main UI, show prompt UI
+			showMainUI(false);
+			showPromptUI(true);			
 
 			break;
 		}
@@ -332,24 +389,24 @@ void cMain::onNoPromptButtonClicked(wxCommandEvent& evt) {
 	watchingCts = false;
 
 	// If this is reached, the user is not still watching, so we hide the prompt UI and return original UI
-	m_btn1->Show();
-	m_btn2->Show();
-	m_btn3->Show();
-	m_list1->Show();
-	m_list2->Show();
-	m_list3->Show();
-
-	m_btn4->Hide();
-	m_btn5->Hide();
-	m_label1->Hide();
+	showMainUI(true);
+	showPromptUI(false);
 }
 
-void cMain::DestroyListBox(wxListBox* listBox) {
-	listBox->Destroy();
-}
-
-void cMain::DestroyButton(wxButton* button) {
-	button->Destroy();
+void cMain::onRadioButtonClicked(wxCommandEvent& evt) {
+	switch (evt.GetId()) {
+	case 20001:
+		setNumToShow(radio1Val);
+		break;
+	case 20002:
+		setNumToShow(radio2Val);
+		break;
+	case 20003:
+		setNumToShow(radio3Val);
+		break;
+	default:
+		break;
+	}
 }
 
 void cMain::onResize(wxSizeEvent& event) {
@@ -364,7 +421,49 @@ void cMain::onResize(wxSizeEvent& event) {
 		newSize.SetHeight(windowHeight);
 	}
 
-	setElementSizes();
+	setElementStyles();
 
 	event.Skip();
+}
+
+// Shows or hides the startup UI
+void cMain::showMainUI(bool show) {
+	if (show) {
+		m_btn1->Show();
+		m_btn2->Show();
+		m_btn3->Show();
+		m_list1->Show();
+		m_list2->Show();
+		m_list3->Show();
+	}
+	else {
+		m_btn1->Hide();
+		m_btn2->Hide();
+		m_btn3->Hide();
+		m_list1->Hide();
+		m_list2->Hide();
+		m_list3->Hide();
+	}	
+}
+
+// Shows or hides the "Are you still there?" prompt UI
+void cMain::showPromptUI(bool show) {
+	if (show) {
+		m_btn4->Show();
+		m_btn5->Show();
+		m_label1->Show();
+	}
+	else {
+		m_btn4->Hide();
+		m_btn5->Hide();
+		m_label1->Hide();
+	}	
+}
+
+void cMain::DestroyListBox(wxListBox* listBox) {
+	listBox->Destroy();
+}
+
+void cMain::DestroyButton(wxButton* button) {
+	button->Destroy();
 }
