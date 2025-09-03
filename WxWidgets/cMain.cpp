@@ -78,6 +78,7 @@ void cMain::createUI() {
 	m_btn4 = new wxButton(this, 10004, "Yes", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_btn5 = new wxButton(this, 10005, "No", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_label1 = new wxStaticText(this, wxID_ANY, "ARE YOU STILL THERE?", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
+	m_label1->SetOwnForegroundColour(fgColor);
 
 	// Create our string boxes
 		/*
@@ -153,7 +154,7 @@ void cMain::setElementStyles() {
 	// Create the fonts and set them for the lists and buttons
 	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 1.0) * 0.02, (double)minDimensions / 40);
 	wxFont btnFont(std::max(std::max(windowHeight, windowWidth) * 0.012, (double)minDimensions / 80), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
-	wxFont listFont(listFontSize, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
+	wxFont listFont(listFontSize * 0.75, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
 	wxFont radioFont(std::max(listFontSize * 0.5, 8.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
 
 	// Handle m_list3 with its own function
@@ -435,6 +436,10 @@ void cMain::showMainUI(bool show) {
 		m_list1->Show();
 		m_list2->Show();
 		m_list3->Show();
+
+		m_radio1->Show();
+		m_radio2->Show();
+		m_radio3->Show();
 	}
 	else {
 		m_btn1->Hide();
@@ -443,6 +448,10 @@ void cMain::showMainUI(bool show) {
 		m_list1->Hide();
 		m_list2->Hide();
 		m_list3->Hide();
+
+		m_radio1->Hide();
+		m_radio2->Hide();
+		m_radio3->Hide();
 	}	
 }
 
