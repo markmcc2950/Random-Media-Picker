@@ -8,7 +8,6 @@ public:
 	std::string getDirectory();
 	void setDirectory(const std::string& newFolderPath);
 	bool LoadPathFromFile(std::string& filePath);
-	void writeToFile(std::string write);
 	int getDirectoryFolderCount(const std::string& directoryPath);
 	int getNumFilesInFolder(const std::string& directoryPath);
 	std::string getFolderByIndex(const std::string& directoryPath, int index);
@@ -23,7 +22,5 @@ private:
 	bool findRandomFile(int& randomValue, int& fileCount, std::string& selectedDirectory, std::string& vlcPath, bool& isValidFolder, std::unordered_map<std::string, bool>& episodesViewed);
 	void findRandomFolder(int& randomValue, int& directoryCount, std::string& selectedDirectory);
 };
-
-extern DirectoryHandler dh;
 
 #endif

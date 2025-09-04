@@ -1,27 +1,12 @@
-#include <algorithm>
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#include <sstream>
-#include <fstream>
-#include <iostream>
-
-#define NOMINMAX
-#include <windows.h>
-#include <ShlObj.h>
-#include <tchar.h>
-#include <string>
-
 #include "RandomEpisode.h"
 
-/*
+#include <time.h>
+#include <fstream>
+#include <windows.h>
 
-	TODO:	Need to save the values of the episode, season, and series to a global variable
-			Use this information to be passed into the values to be read to grab the actual episode information for VLC player
-			-	Find the episode name based on the episode int number given
+#include "CipherHandler.h"
 
-*/
+CipherHandler ch;
 
 std::string RandomEpisode::tcharToString(TCHAR toConvert[]) {
 	int tstr_len = _tcslen(toConvert);																	// Get the length of TCHAR string
@@ -60,7 +45,6 @@ bool RandomEpisode::openFile(std::string episodePath) {
 	wsprintfA(buf, "%s \"%s\" --play-and-exit --fullscreen", appname, fileName);
 	
 	if (!CreateProcessA(NULL, buf, NULL, NULL, FALSE, 0, NULL, NULL, &startupInfo, &processInfo)) {
-		std::cerr << "Failed to start VLC: " << GetLastError() << std::endl;
 		return false;
 	}
 
@@ -77,17 +61,13 @@ bool RandomEpisode::openFile(std::string episodePath) {
 
 // Grabs all previously viewed episodes
 void RandomEpisode::retrieveAllViewed(std::stack<std::string>& episodeStack, std::vector<std::string>& episodeList, std::unordered_map<std::string, bool>& episodesViewedHash, int& filesToDisplay) {
-	std::ifstream viewedFile("EpisodesViewed.txt");
+	std::ifstream file("EpisodesViewed.txt");
 
 	// If the file doesn't exist, create it and exit this function early as we don't have anything to pull
-	if (!viewedFile) {
+	if (!file) {
 		std::ofstream createFile("EpisodesViewed.txt");
 		if (createFile) {
-			std::cout << "Created EpisodesViewed.txt" << std::endl;
 			createFile.close();
-		}
-		else {
-			std::cerr << "Failed to create EpisodesViewed.txt" << std::endl;
 		}
 
 		return;
@@ -96,12 +76,13 @@ void RandomEpisode::retrieveAllViewed(std::stack<std::string>& episodeStack, std
 	std::string line;
 
 	// Iterate through each line in our file, push to our vector, and set our hash map to "viewed"
-	while (std::getline(viewedFile, line)) {
-		episodeList.push_back(line);
-		episodesViewedHash[line] = true;
+	while (std::getline(file, line)) {
+		std::string decodedString = ch.affineDecode(line);
+		episodeList.push_back(decodedString);
+		episodesViewedHash[decodedString] = true;
 	}
 
-	viewedFile.close();
+	file.close();
 
 	updateRecentWatched(episodeStack, episodeList, filesToDisplay);
 }
@@ -112,18 +93,18 @@ void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack, s
 	for (i; i < episodeList.size(); i++) {
 		episodeStack.push(episodeList[i]);
 	}
-
-	std::cout << "DEBUG";
 }
 
 // Add newly watched episodes to file and hash map
 void RandomEpisode::storeRecentWatched(std::string toWrite, std::unordered_map<std::string, bool>& episodesViewedHash) {
-	std::ofstream brFile2;
-	brFile2.open("EpisodesViewed.txt", std::ios_base::app);
-	if (brFile2.is_open()) {
-			brFile2 << toWrite << "\n";
+	std::ofstream file;
+	file.open("EpisodesViewed.txt", std::ios_base::app);
+	
+	if (file.is_open()) {		
+		std::string encodedWrite = ch.affineEncode(toWrite);
+		file << encodedWrite << "\n";
 	}
-	brFile2.close();
+	file.close();
 
 	episodesViewedHash[toWrite] = true;
 }

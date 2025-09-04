@@ -20,12 +20,14 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="cApp.h" />
+    <ClInclude Include="CipherHandler.h" />
     <ClInclude Include="cMain.h" />
     <ClInclude Include="DirectoryHandler.h" />
     <ClInclude Include="RandomEpisode.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cApp.cpp" />
+    <ClCompile Include="CipherHandler.cpp" />
     <ClCompile Include="cMain.cpp" />
     <ClCompile Include="DirectoryHandler.cpp" />
     <ClCompile Include="RandomEpisode.cpp" />

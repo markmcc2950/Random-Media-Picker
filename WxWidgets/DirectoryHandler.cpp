@@ -8,7 +8,6 @@
 #include <sstream>
 #include <vector>
 
-DirectoryHandler dh;
 extern RandomEpisode re;
 
 std::string DirectoryHandler::getDirectory() {
@@ -204,13 +203,13 @@ std::string DirectoryHandler::formatFinalDirectory(const std::string& fullPath) 
 }
 
 std::string DirectoryHandler::getRandomFolder(std::string selectedFolder, int folderIndex) {
-    return dh.getFolderByIndex(selectedFolder, folderIndex);
+    return getFolderByIndex(selectedFolder, folderIndex);
 }
 
 void DirectoryHandler::findRandomFolder(int& randomValue, int& directoryCount, std::string& selectedDirectory) {
     randomValue = rand() % directoryCount;
 
-    std::string nextFolder = dh.getRandomFolder(selectedDirectory, randomValue);			// Get name of randomly chosen folder
+    std::string nextFolder = getRandomFolder(selectedDirectory, randomValue);			// Get name of randomly chosen folder
     selectedDirectory += "//" + nextFolder;
 }
 
@@ -243,8 +242,8 @@ bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::st
     srand(time(0));
 
     while (isValidFolder) {
-        directoryCount = dh.getDirectoryFolderCount(selectedDirectory);
-        fileCount = dh.getNumFilesInFolder(selectedDirectory);
+        directoryCount = getDirectoryFolderCount(selectedDirectory);
+        fileCount = getNumFilesInFolder(selectedDirectory);
 
         // If we have both files and folders in this directory, choose at random to choose a file or another folder to parse through
         if (directoryCount > 0 && fileCount > 0) {
@@ -260,7 +259,7 @@ bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::st
                 }
                 // If we have watched it, reset and continue searching
                 else {
-                    selectedDirectory = dh.getDirectory();
+                    selectedDirectory = getDirectory();
                     loopCounter = -1;
                 }
             }
@@ -277,19 +276,19 @@ bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::st
                 }
                 // If we have watched it, reset and continue searching
                 else {
-                    selectedDirectory = dh.getDirectory();
+                    selectedDirectory = getDirectory();
                 }
             }
             // We selected an empty folder, reset search
             else {
-                selectedDirectory = dh.getDirectory();
+                selectedDirectory = getDirectory();
             }
         }
 
         ++loopCounter;
         // Corner case: If we're too many folders deep, reset the search loop, reduce the loopCounter by half to not fully reset, but try not to get stuck in infinite loops
         if (loopCounter >= 10 && isValidFolder) {
-            selectedDirectory = dh.getDirectory();
+            selectedDirectory = getDirectory();
         }
 
         ++loopCounter;

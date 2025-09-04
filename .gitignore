@@ -17,3 +17,9 @@
 *.ipch
 *.vsidx
 *.vs/
+*.tlog
+*.obj
+*.iobj
+*.ipdb
+*.pdb
+*.exe

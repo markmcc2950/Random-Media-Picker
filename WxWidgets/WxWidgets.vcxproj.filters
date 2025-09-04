@@ -27,6 +27,9 @@
     <ClInclude Include="DirectoryHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="CipherHandler.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="cApp.cpp">
@@ -39,6 +42,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="DirectoryHandler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CipherHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -20,7 +20,7 @@ EVT_RADIOBUTTON(20003, onRadioButtonClicked)
 wxEND_EVENT_TABLE()
 
 RandomEpisode re;
-extern DirectoryHandler dh;
+DirectoryHandler dh;
 
 cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Episode Generator", wxDefaultPosition, wxDefaultSize) {
 	// Create UI and initialize all settings (such as pulling info from our local list of stored viewed episodes)
@@ -85,16 +85,14 @@ void cMain::createUI() {
 			- list2: Up to 10 most recently watched episodes
 			- list3: Selected media root folder
 		*/
-	m_list1 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.1, windowHeight * 0.3), wxSize(windowWidth * 0.5, windowHeight * 0.035));
-	m_list2 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.1, windowHeight * 0.4), wxSize(windowWidth * 0.5, windowHeight * 0.325));
-
-	// Create the directory string box, but hide it
-	m_list3 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.5, windowHeight * 0.2), wxSize(windowWidth * 0.5, windowHeight * 0.2));
+	m_list1 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.1, windowHeight * 0.3), wxSize(windowWidth * 0.5, windowHeight * 0.035));			// Most recent episode picked
+	m_list2 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.1, windowHeight * 0.4), wxSize(windowWidth * 0.5, windowHeight * 0.325));			// Most recent N episodes picked (radio buttons)
+	m_list3 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.5, windowHeight * 0.2), wxSize(windowWidth * 0.5, windowHeight * 0.2));				// Media directory path
 
 	// Radio buttons
-	m_radio1 = new wxRadioButton(this, 20001, wxString::Format("%d", radio1Val), wxPoint(windowWidth * 0.2, windowHeight * 0.8), wxSize(50, 50));
-	m_radio2 = new wxRadioButton(this, 20002, wxString::Format("%d", radio2Val), wxPoint(windowWidth * 0.5, windowHeight * 0.8), wxSize(50, 50));
-	m_radio3 = new wxRadioButton(this, 20003, wxString::Format("%d", radio3Val), wxPoint(windowWidth * 0.8, windowHeight * 0.8), wxSize(50, 50));
+	m_radio1 = new wxRadioButton(this, 20001, wxString::Format("%d", radio1Val), wxPoint(windowWidth * 0.2, windowHeight * 0.8), wxSize(50, 50));		// Show 10 recent episodes
+	m_radio2 = new wxRadioButton(this, 20002, wxString::Format("%d", radio2Val), wxPoint(windowWidth * 0.5, windowHeight * 0.8), wxSize(50, 50));		// Show 25 recent episodes
+	m_radio3 = new wxRadioButton(this, 20003, wxString::Format("%d", radio3Val), wxPoint(windowWidth * 0.8, windowHeight * 0.8), wxSize(50, 50));		// Show 50 recent episodes
 
 	setElementStyles();
 
@@ -114,14 +112,14 @@ void cMain::createUI() {
 }
 
 void cMain::setElementStyles() {
-	buttonWidth = std::max(windowWidth * 0.15, (double)minDimensions / 16);
-	buttonHeight = std::max(windowHeight * 0.075, (double)minDimensions / 32);
+	buttonWidth = std::max(windowWidth * 0.15, (double)minDimensions / 24);
+	buttonHeight = std::max((windowHeight * 0.075) + (windowWidth * 0.01), (double)minDimensions / 24);
 	int largerDimension = std::max(windowWidth, windowHeight);
 
 	// Set positions based on current window size
-	m_btn1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.1));
-	m_btn2->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.1));
-	m_btn3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - buttonWidth, windowHeight * 0.1));
+	m_btn1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.075));
+	m_btn2->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.075));
+	m_btn3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - buttonWidth, windowHeight * 0.075));
 	m_list1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.25));
 	m_list2->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.3));
 	m_radio1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.8));
@@ -143,7 +141,7 @@ void cMain::setElementStyles() {
 	m_btn1->SetSize(wxSize(buttonWidth, buttonHeight));
 	m_btn2->SetSize(wxSize(buttonWidth, buttonHeight));
 	m_btn3->SetSize(wxSize(buttonWidth, buttonHeight));
-	m_list1->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.035));
+	m_list1->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.045));
 	m_list2->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.4));
 	
 	m_radio1->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
@@ -151,7 +149,7 @@ void cMain::setElementStyles() {
 	m_radio3->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
 
 	// Create the fonts and set them for the lists and buttons
-	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 1.0) * 0.02, (double)minDimensions / 40);
+	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 0.5) * 0.015, (double)minDimensions / 60);
 	wxFont btnFont(std::max(std::max(windowHeight, windowWidth) * 0.012, (double)minDimensions / 80), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
 	wxFont listFont(listFontSize, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
 	wxFont radioFont(std::max(listFontSize * 0.5, 8.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
@@ -208,8 +206,6 @@ void cMain::appendEpisodesList() {
 		m_list2->AppendString(episodeStack.top());
 		episodeStack.pop();		
 	}
-
-	std::cout << "DEBUG";
 }
 
 void cMain::setMediaDirectory(int fontSize) {
@@ -230,7 +226,7 @@ void cMain::setMediaDirectory(int fontSize) {
 
 	// Re-populate the browse list with our new directory path and length, adjusting the UI components accordingly
 	m_list3->SetSize(textSize.GetWidth() + 20, textSize.GetHeight() + 10);
-	m_list3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - textSize.GetWidth() - 20, windowHeight * 0.1 + (buttonHeight * 1.15)));
+	m_list3->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - textSize.GetWidth() - 20, windowHeight * 0.075 + (buttonHeight * 1.15)));
 
 	
 	
@@ -279,13 +275,8 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 			dh.setDirectory(newPath);
 			m_btn1->Enable();
 		}
-		else {
-			std::cout << "Error: Failed to retrieve folder path." << std::endl;
-		}
+
 		CoTaskMemFree(pidl);
-	}
-	else {
-		std::cout << "No folder selected." << std::endl;
 	}
 
 	std::string directoryPath = dh.getDirectory();
@@ -322,7 +313,7 @@ void cMain::selectRandomEpisode() {
 			m_list2->Clear();
 
 			// Clear our list of viewed episodes, reappend our updated list
-			for (int i = 0; i < filesToDisplay; i++) {
+			for (int i = 0; i < std::min(filesToDisplay, (int)episodeList.size()); i++) {
 				m_list2->AppendString(episodeList[i]);
 			}
 
