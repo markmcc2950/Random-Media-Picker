@@ -23,3 +23,9 @@
 *.ipdb
 *.pdb
 *.exe
+*.log
+*.recipe
+*.idb
+*.log
+*.tlog
+*.lastbuildstate

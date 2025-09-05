@@ -8,15 +8,18 @@
 #include <windows.h>
 #include <shlobj.h>
 
+// Handle events for buttons/radios clicked
 wxBEGIN_EVENT_TABLE(cMain, wxFrame)
 EVT_BUTTON(10001, OnRandomButtonClicked)
 EVT_BUTTON(10002, onContinuousButtonClicked)
 EVT_BUTTON(10003, onBrowseButtonClicked)
 EVT_BUTTON(10004, onContinuousButtonClicked)
 EVT_BUTTON(10005, onNoPromptButtonClicked)
-EVT_RADIOBUTTON(20001, onRadioButtonClicked)
-EVT_RADIOBUTTON(20002, onRadioButtonClicked)
-EVT_RADIOBUTTON(20003, onRadioButtonClicked)
+EVT_RADIOBUTTON(20001, onRadioViewNumClicked)
+EVT_RADIOBUTTON(20002, onRadioViewNumClicked)
+EVT_RADIOBUTTON(20003, onRadioViewNumClicked)
+EVT_RADIOBUTTON(20004, onRadioLightThemeClicked)
+EVT_RADIOBUTTON(20005, onRadioLightThemeClicked)
 wxEND_EVENT_TABLE()
 
 RandomEpisode re;
@@ -67,8 +70,6 @@ void cMain::createUI() {
 	SetSize(windowWidth, windowHeight);
 	SetMinSize(wxSize(minDimensions, minDimensions));
 
-	SetBackgroundColour(bgColor);
-
 	// Create our buttons
 	m_btn1 = new wxButton(this, 10001, "Watch Random", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_btn2 = new wxButton(this, 10002, "Watch\nContinuous", wxPoint(windowWidth * 0.1, windowHeight * 0.2), wxSize(windowWidth * 0.1, windowHeight * 0.05));
@@ -78,7 +79,7 @@ void cMain::createUI() {
 	m_btn4 = new wxButton(this, 10004, "Yes", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_btn5 = new wxButton(this, 10005, "No", wxPoint(windowWidth * 0.1, windowHeight * 0.1), wxSize(windowWidth * 0.1, windowHeight * 0.05));
 	m_label1 = new wxStaticText(this, wxID_ANY, "ARE YOU STILL THERE?", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
-	m_label1->SetOwnForegroundColour(fgColor);
+	m_label1->SetOwnForegroundColour(colorFG);
 
 	// Create our string boxes
 		/*
@@ -91,9 +92,12 @@ void cMain::createUI() {
 	m_list3 = new wxListBox(this, wxID_ANY, wxPoint(windowWidth * 0.5, windowHeight * 0.2), wxSize(windowWidth * 0.5, windowHeight * 0.2));				// Media directory path
 
 	// Radio buttons
-	m_radio1 = new wxRadioButton(this, 20001, wxString::Format("%d", radio1Val), wxPoint(windowWidth * 0.2, windowHeight * 0.8), wxSize(50, 50));		// Show 10 recent episodes
-	m_radio2 = new wxRadioButton(this, 20002, wxString::Format("%d", radio2Val), wxPoint(windowWidth * 0.5, windowHeight * 0.8), wxSize(50, 50));		// Show 25 recent episodes
-	m_radio3 = new wxRadioButton(this, 20003, wxString::Format("%d", radio3Val), wxPoint(windowWidth * 0.8, windowHeight * 0.8), wxSize(50, 50));		// Show 50 recent episodes
+	m_radio1 = new wxRadioButton(this, 20001, wxString::Format("%d", radio1Val), wxPoint(windowWidth * 0.2, windowHeight * 0.8), wxSize(50, 50), wxRB_GROUP);		// Show 10 recent episodes
+	m_radio2 = new wxRadioButton(this, 20002, wxString::Format("%d", radio2Val), wxPoint(windowWidth * 0.3, windowHeight * 0.8), wxSize(50, 50));		// Show 25 recent episodes
+	m_radio3 = new wxRadioButton(this, 20003, wxString::Format("%d", radio3Val), wxPoint(windowWidth * 0.4, windowHeight * 0.8), wxSize(50, 50));		// Show 50 recent episodes
+	// Light Mode/Dark Mode
+	m_radio4 = new wxRadioButton(this, 20004, "Light Mode", wxPoint(windowWidth * 0.7, windowHeight * 0.8), wxSize(50, 50), wxRB_GROUP);		// Show 50 recent episodes
+	m_radio5 = new wxRadioButton(this, 20005, "Dark Mode", wxPoint(windowWidth * 0.8, windowHeight * 0.8), wxSize(50, 50));		// Show 50 recent episodes
 
 	setElementStyles();
 
@@ -113,6 +117,8 @@ void cMain::createUI() {
 }
 
 void cMain::setElementStyles() {
+	SetBackgroundColour(colorBG);
+
 	buttonWidth = std::max(windowWidth * 0.15, (double)minDimensions / 24);
 	buttonHeight = std::max((windowHeight * 0.075) + (windowWidth * 0.01), (double)minDimensions / 24);
 	int largerDimension = std::max(windowWidth, windowHeight);
@@ -126,6 +132,8 @@ void cMain::setElementStyles() {
 	m_radio1->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.8));
 	m_radio2->SetPosition(wxPoint(windowWidth * 0.2, windowHeight * 0.8));
 	m_radio3->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.8));
+	m_radio4->SetPosition(wxPoint(windowWidth * 0.7, windowHeight * 0.8));
+	m_radio5->SetPosition(wxPoint(windowWidth * 0.8, windowHeight * 0.8));
 
 	// Set special prompt dimensions and locations
 	m_btn4->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.5));
@@ -148,6 +156,8 @@ void cMain::setElementStyles() {
 	m_radio1->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
 	m_radio2->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
 	m_radio3->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
+	m_radio4->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
+	m_radio5->SetSize(wxSize(std::min(largerDimension / 10, 50), std::min(largerDimension / 10, 50)));
 
 	// Create the fonts and set them for the lists and buttons
 	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 0.5) * 0.015, (double)minDimensions / 60);
@@ -165,17 +175,39 @@ void cMain::setElementStyles() {
 	m_btn4->SetFont(btnFont);
 	m_btn5->SetFont(btnFont);
 
+	// Button Colors
+	m_btn1->SetBackgroundColour(colorBG);
+	m_btn2->SetBackgroundColour(colorBG);
+	m_btn3->SetBackgroundColour(colorBG);
+	m_btn4->SetBackgroundColour(colorBG);
+	m_btn5->SetBackgroundColour(colorBG);
+	m_btn1->SetForegroundColour(colorFG);
+	m_btn2->SetForegroundColour(colorFG);
+	m_btn3->SetForegroundColour(colorFG);
+	m_btn4->SetForegroundColour(colorFG);
+	m_btn5->SetForegroundColour(colorFG);
+
 	// List fonts
 	m_list1->SetFont(listFont);
 	m_list2->SetFont(listFont);
+
+	// List Colors
+	m_list1->SetBackgroundColour(colorBG);
+	m_list2->SetBackgroundColour(colorBG);
+	m_list3->SetBackgroundColour(colorBG);
+	m_list1->SetForegroundColour(colorFG);
+	m_list2->SetForegroundColour(colorFG);
+	m_list3->SetForegroundColour(colorFG);
 
 	// Radio buttons fonts & text color
 	m_radio1->SetFont(radioFont);
 	m_radio2->SetFont(radioFont);
 	m_radio3->SetFont(radioFont);
-	m_radio1->SetForegroundColour(fgColor);
-	m_radio2->SetForegroundColour(fgColor);
-	m_radio3->SetForegroundColour(fgColor);
+	m_radio1->SetForegroundColour(colorFG);
+	m_radio2->SetForegroundColour(colorFG);
+	m_radio3->SetForegroundColour(colorFG);
+	m_radio4->SetForegroundColour(colorFG);
+	m_radio5->SetForegroundColour(colorFG);
 }
 
 void cMain::initialSettings() {
@@ -183,7 +215,11 @@ void cMain::initialSettings() {
 	re.retrieveAllViewed(episodeStack, episodeList, episodesViewedHash, filesToDisplay);
 
 	appendEpisodesList();
-	
+
+	m_radio1->SetValue(true);
+	m_radio1->SetFocus();
+	m_radio5->SetValue(true);
+	m_radio5->SetFocus();
 
 	// Populate the directory where our media is located (if used before)
 	bool loadFile = dh.LoadPathFromFile(selectedDirectory);	
@@ -385,7 +421,7 @@ void cMain::onNoPromptButtonClicked(wxCommandEvent& evt) {
 	showPromptUI(false);
 }
 
-void cMain::onRadioButtonClicked(wxCommandEvent& evt) {
+void cMain::onRadioViewNumClicked(wxCommandEvent& evt) {
 	switch (evt.GetId()) {
 	case 20001:
 		setNumToShow(radio1Val);
@@ -399,6 +435,28 @@ void cMain::onRadioButtonClicked(wxCommandEvent& evt) {
 	default:
 		break;
 	}
+}
+
+void cMain::onRadioLightThemeClicked(wxCommandEvent& evt) {
+	switch (evt.GetId()) {
+	case 20004:
+		lightMode = true;
+		colorFG = colorDark;
+		colorBG = colorLight;
+		break;
+	case 20005:
+		lightMode = false;
+		colorFG = colorLight;
+		colorBG = colorDark;
+		break;
+	default:
+		break;
+	}
+
+	// Refresh and update the window
+	setElementStyles();
+	this->Refresh(true);
+	this->Update();
 }
 
 void cMain::onResize(wxSizeEvent& event) {

@@ -33,7 +33,8 @@ private:
 	void onBrowseButtonClicked(wxCommandEvent& evt);
 	void onContinuousButtonClicked(wxCommandEvent& evt);
 	void onNoPromptButtonClicked(wxCommandEvent& evt);
-	void onRadioButtonClicked(wxCommandEvent& evt);
+	void onRadioViewNumClicked(wxCommandEvent& evt);
+	void onRadioLightThemeClicked(wxCommandEvent& evt);
 
 	// Main UI
 	// Buttons
@@ -54,10 +55,14 @@ private:
 	wxRadioButton* m_radio1 = nullptr;
 	wxRadioButton* m_radio2 = nullptr;
 	wxRadioButton* m_radio3 = nullptr;
+	wxRadioButton* m_radio4 = nullptr;
+	wxRadioButton* m_radio5 = nullptr;
 
 	// Foreground and Background colors
-	wxColour fgColor = wxColour(255, 255, 255);
-	wxColour bgColor = wxColour(40, 40, 40);
+	wxColour colorLight = wxColour(255, 255, 255);
+	wxColour colorDark = wxColour(40, 40, 40);
+	wxColour colorFG = wxColour(255, 255, 255);
+	wxColour colorBG = wxColour(40, 40, 40);
 
 	std::string recentEpisode = "";
 	std::vector<std::string> episodeList;
@@ -70,6 +75,7 @@ private:
 
 	bool episodePicked = false;
 	bool watchingCts = false;											// If user is watching continuous
+	bool lightMode = false;												// Light Mode/Dark Mode
 
 	int directoryCount = 0;
 	int fileCount = 0;
