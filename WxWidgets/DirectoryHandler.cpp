@@ -9,6 +9,7 @@
 #include <vector>
 
 extern RandomEpisode re;
+DirectoryHandler dh;
 
 std::string DirectoryHandler::getDirectory() {
 	return folderPath;

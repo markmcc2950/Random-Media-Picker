@@ -23,6 +23,7 @@
     <ClInclude Include="CipherHandler.h" />
     <ClInclude Include="cMain.h" />
     <ClInclude Include="DirectoryHandler.h" />
+    <ClInclude Include="InterfaceHandler.h" />
     <ClInclude Include="RandomEpisode.h" />
   </ItemGroup>
   <ItemGroup>
@@ -30,6 +31,7 @@
     <ClCompile Include="CipherHandler.cpp" />
     <ClCompile Include="cMain.cpp" />
     <ClCompile Include="DirectoryHandler.cpp" />
+    <ClCompile Include="InterfaceHandler.cpp" />
     <ClCompile Include="RandomEpisode.cpp" />
   </ItemGroup>
   <ItemGroup>

@@ -7,6 +7,7 @@
 #include "CipherHandler.h"
 
 CipherHandler ch;
+RandomEpisode re;
 
 std::string RandomEpisode::tcharToString(TCHAR toConvert[]) {
 	int tstr_len = _tcslen(toConvert);																	// Get the length of TCHAR string
