@@ -17,8 +17,6 @@ public:
 
 private:
 	void initialSettings();
-	void DestroyListBox(wxListBox* listBox);
-	void DestroyButton(wxButton* button);
 	void onResize(wxSizeEvent& event);
 
 	void createUI();
@@ -82,7 +80,7 @@ private:
 	int fileCount = 0;
 	int randomValue = -1;
 	int loopCounter = 0;
-	int filesToDisplay = 15;
+	int filesToDisplay = 10;
 	int ctsCtr = 0;														// Counter for continuous watching
 	int minDimensions = 600;
 

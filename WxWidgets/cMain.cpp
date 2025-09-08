@@ -38,31 +38,37 @@ cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Episode Generator", wxDefaul
 cMain::~cMain() {
 	// Destroy all buttons
 	for (auto* btn : wxBtnVec) {
-		DestroyButton(btn);
+		btn->Destroy();
+	}
+	// Destroy all radio buttons
+	for (auto* radBtn : wxRadVec) {
+		radBtn->Destroy();
 	}
 	// Destroy all lists
 	for (auto* list : wxListVec) {
-		DestroyListBox(list);
+		list->Destroy();
+	}
+	// Destroy all static text elements
+	for (auto* staticText : wxTextVec) {
+		staticText->Destroy();
 	}
 }
 
 void cMain::setNumToShow(int n) {
 	filesToDisplay = n;
-	
+
 	// Clear the list if it's been populated already
 	if (m_list2) {
 		m_list2->Clear();
 	}
 
-	for (int i = episodeList.size() - 1; i >= std::min((int)episodeList.size() - filesToDisplay, filesToDisplay); i--) {
-		if (i >= 0) {
-			m_list2->AppendString(episodeList[i]);
-		}
-
-		// In case we go into negative index values
-		else {
-			break;
-		}
+	// Find out where our list needs to start from, and append it to m_list2
+	int listStart = std::max((int)episodeList.size() - 1, filesToDisplay - 1);
+	int amtToParse = std::max(listStart - filesToDisplay, 0) + 1;
+	
+	for (int i = listStart; i >= amtToParse; i--) {
+		std::string iterator = std::to_string(listStart - i + 1);
+		m_list2->AppendString(iterator + ":\t|   " + episodeList[i]);
 	}
 }
 
@@ -157,7 +163,8 @@ void cMain::appendEpisodesList() {
 	int toDisplay = std::min((int)episodeStack.size(), filesToDisplay);
 
 	for (int i = 0; i < toDisplay; i++) {
-		m_list2->AppendString(episodeStack.top());
+		std::string iterator = std::to_string(i + 1);
+		m_list2->AppendString(iterator + ":\t|   " + episodeStack.top());
 		episodeStack.pop();		
 	}
 }
@@ -235,13 +242,9 @@ void cMain::selectRandomEpisode() {
 		if (selectedDirectory != "" && filesToDisplay > 0) {
 			m_list2->Clear();
 
-			// Clear our list of viewed episodes, reappend our updated list
-			for (int i = 0; i < std::min(filesToDisplay, (int)episodeList.size()); i++) {
-				m_list2->AppendString(episodeList[i]);
-			}
-
 			// Append the new episode and reverse the list to show latest watched first
-			episodeList.insert(episodeList.begin(), selectedDirectory);
+			setNumToShow(filesToDisplay);
+			episodeList.push_back(selectedDirectory);			
 		}
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
@@ -352,12 +355,4 @@ void cMain::onResize(wxSizeEvent& event) {
 	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);;
 
 	event.Skip();
-}
-
-void cMain::DestroyListBox(wxListBox* listBox) {
-	listBox->Destroy();
-}
-
-void cMain::DestroyButton(wxButton* button) {
-	button->Destroy();
 }
