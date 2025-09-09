@@ -63,8 +63,17 @@ void cMain::setNumToShow(int n) {
 	}
 
 	// Find out where our list needs to start from, and append it to m_list2
-	int listStart = std::max((int)episodeList.size() - 1, filesToDisplay - 1);
-	int amtToParse = std::max(listStart - filesToDisplay, 0) + 1;
+	//int listStart = std::max((int)episodeList.size() - 1, filesToDisplay - 1);
+	int listSize = episodeList.size();
+	int listStart, amtToParse;
+	if (filesToDisplay > listSize) {
+		listStart = listSize - 1;
+		amtToParse = 0;
+	}
+	else {
+		listStart = filesToDisplay;
+		amtToParse = listSize - filesToDisplay;
+	}
 	
 	for (int i = listStart; i >= amtToParse; i--) {
 		std::string iterator = std::to_string(listStart - i + 1);
@@ -243,8 +252,9 @@ void cMain::selectRandomEpisode() {
 			m_list2->Clear();
 
 			// Append the new episode and reverse the list to show latest watched first
+			
+			episodeList.push_back(selectedDirectory);	
 			setNumToShow(filesToDisplay);
-			episodeList.push_back(selectedDirectory);			
 		}
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
