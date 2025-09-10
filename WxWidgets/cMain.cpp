@@ -56,6 +56,30 @@ cMain::~cMain() {
 
 void cMain::setNumToShow(int n) {
 	filesToDisplay = n;
+	int listSize = static_cast<int>(episodeList.size());
+
+	// Enable or disable radio buttons based on the number of episodes recorded as viewed
+	if (listSize > 10) {
+		if (!m_radio1->IsEnabled()) {
+			m_radio1->Enable();
+		}
+		m_radio2->Enable();
+	}
+	else {
+		m_radio2->Disable();
+	}
+	if (listSize > 25) {
+		if (!m_radio1->IsEnabled()) {
+			m_radio1->Enable();
+		}
+		if (!m_radio2->IsEnabled()) {
+			m_radio2->Enable();
+		}
+		m_radio3->Enable();
+	}
+	else {
+		m_radio3->Disable();
+	}
 
 	// Clear the list if it's been populated already
 	if (m_list2) {
@@ -63,15 +87,13 @@ void cMain::setNumToShow(int n) {
 	}
 
 	// Find out where our list needs to start from, and append it to m_list2
-	//int listStart = std::max((int)episodeList.size() - 1, filesToDisplay - 1);
-	int listSize = episodeList.size();
-	int listStart, amtToParse;
-	if (filesToDisplay > listSize) {
-		listStart = listSize - 1;
+	int listStart = listSize - 1;
+	int amtToParse;
+	
+	if (filesToDisplay >= listSize) {
 		amtToParse = 0;
 	}
 	else {
-		listStart = filesToDisplay;
 		amtToParse = listSize - filesToDisplay;
 	}
 	
@@ -146,7 +168,7 @@ void cMain::initialSettings() {
 	// Populate the recently watched list
 	re.retrieveAllViewed(episodeStack, episodeList, episodesViewedHash, filesToDisplay);
 
-	appendEpisodesList();
+	setNumToShow(filesToDisplay);
 
 	m_radio1->SetValue(true);
 	m_radio1->SetFocus();
@@ -164,17 +186,6 @@ void cMain::initialSettings() {
 		m_list3->Hide();
 		m_btn1->Disable();
 		m_btn2->Disable();			// This button is for "watch continuous"
-	}
-}
-
-void cMain::appendEpisodesList() {
-	// Set how many values to show, max of filesToDisplay (for now), or if files viewed < filesToDisplay, only display those
-	int toDisplay = std::min((int)episodeStack.size(), filesToDisplay);
-
-	for (int i = 0; i < toDisplay; i++) {
-		std::string iterator = std::to_string(i + 1);
-		m_list2->AppendString(iterator + ":\t|   " + episodeStack.top());
-		episodeStack.pop();		
 	}
 }
 

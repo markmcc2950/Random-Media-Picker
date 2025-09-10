@@ -22,7 +22,6 @@ private:
 	void createUI();
 	void setNumToShow(int n);	
 	void selectRandomEpisode();
-	void appendEpisodesList();
 
 	// Interaction-specific functions
 	void OnRandomButtonClicked(wxCommandEvent& evt);
