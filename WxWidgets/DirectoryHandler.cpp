@@ -33,14 +33,26 @@ void DirectoryHandler::saveBrowsePathToFile(const std::string& path) {
 
 bool DirectoryHandler::LoadPathFromFile(std::string& filePath) {
     std::ifstream file("config.txt");
+    if (!file) {
+        std::ofstream createFile("config.txt");
+        if (createFile) {
+            createFile.close();
+        }
+
+        return false;
+    }
+
     std::string path;
 
     if (file.is_open()) {
         std::getline(file, path);  // Read the saved path
         file.close();
-        filePath = path;
-        folderPath = path;
-        return true;
+        if (path.length() > 0) {
+            filePath = path;
+            folderPath = path;
+            return true;
+        }
+        return false;
     }
     else {
         std::cerr << "No saved path found." << std::endl;

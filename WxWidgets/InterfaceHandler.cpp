@@ -57,8 +57,8 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 
 	// Handle m_list3 with its own function
 	setMediaDirectory(listFontSize, wxListVec, selectedDirectory);
-	wxBtnVec[0]->Enable();
-	wxBtnVec[1]->Enable();
+	//wxBtnVec[0]->Enable();
+	//wxBtnVec[1]->Enable();
 
 	// Button fonts and colors
 	for (auto* btn : wxBtnVec) {

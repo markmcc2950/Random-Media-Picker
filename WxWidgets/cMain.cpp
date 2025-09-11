@@ -159,6 +159,10 @@ void cMain::createUI() {
 	m_radio5->SetToolTip("Toggle Light Mode");
 	m_radio6->SetToolTip("Toggle Dark Mode");
 
+	// Disable buttons until we have everything initialized
+	m_btn1->Disable();
+	m_btn2->Disable();
+
 	// Hide prompt-specific UI
 	m_btn4->Hide();
 	m_btn5->Hide();
@@ -193,11 +197,14 @@ void cMain::initialSettings() {
 	if (loadFile) {
 		m_list3->SetToolTip(selectedDirectory);
 		ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);
+
+		m_btn1->Enable();
+		m_btn2->Enable();
 	}
 	else {
 		m_list3->Hide();
 		m_btn1->Disable();
-		m_btn2->Disable();			// This button is for "watch continuous"
+		m_btn2->Disable();
 	}
 }
 
@@ -236,6 +243,8 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 			selectedDirectory = newPath;											// Store the path locally, and store it into our text file for later retrieval
 			dh.setDirectory(newPath);
 			m_btn1->Enable();
+			m_btn2->Enable();
+			m_list3->Show();
 		}
 
 		CoTaskMemFree(pidl);
@@ -259,6 +268,7 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 void cMain::selectRandomEpisode() {
 	// Disable button and show we are searching
 	m_btn1->Disable();
+	m_btn2->Disable();
 	m_list1->Clear();
 	m_list1->AppendString("SEARCHING...");
 
@@ -282,6 +292,7 @@ void cMain::selectRandomEpisode() {
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
 		m_btn1->Enable();
+		m_btn2->Enable();
 
 		// Take our file index and find the file name. This lets us open the file in VLC with the full path + episode name
 		std::string episodeName = dh.getFileByIndex(vlcPath, randomValue);
@@ -301,6 +312,7 @@ void cMain::selectRandomEpisode() {
 		m_list1->AppendString(errorDisplay);
 
 		m_btn1->Enable();
+		m_btn2->Enable();
 		loopCounter = 0;
 	}
 }
