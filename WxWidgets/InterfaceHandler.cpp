@@ -41,15 +41,16 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 	wxRadVec[0]->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.8));
 	wxRadVec[1]->SetPosition(wxPoint(windowWidth * 0.2, windowHeight * 0.8));
 	wxRadVec[2]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.8));
-	wxRadVec[3]->SetPosition(wxPoint(windowWidth * 0.75, windowHeight * 0.8));
-	wxRadVec[4]->SetPosition(wxPoint(windowWidth * 0.8, windowHeight * 0.8));
+	wxRadVec[3]->SetPosition(wxPoint(windowWidth * 0.4, windowHeight * 0.8));
+	wxRadVec[4]->SetPosition(wxPoint(windowWidth * 0.75, windowHeight * 0.8));
+	wxRadVec[5]->SetPosition(wxPoint(windowWidth * 0.8, windowHeight * 0.8));
 
 	// Set special prompt dimensions and locations
 	wxBtnVec[3]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.5));
 	wxBtnVec[4]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.5), windowHeight * 0.5));
 
 	// "Are you still there" text and sizing
-	wxTextVec[0]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.3));
+	wxTextVec[0]->SetPosition(wxPoint(windowWidth * 0.25, windowHeight * 0.3));
 	wxTextVec[0]->SetFont(textFont);
 	wxListVec[0]->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.045));
 	wxListVec[1]->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.4));
@@ -126,6 +127,7 @@ void InterfaceHandler::showMainUI(bool show, std::vector<wxButton*>& wxBtnVec, s
 		wxRadVec[2]->Show();
 		wxRadVec[3]->Show();
 		wxRadVec[4]->Show();
+		wxRadVec[5]->Show();
 	}
 	else {
 		wxBtnVec[0]->Hide();
@@ -140,6 +142,7 @@ void InterfaceHandler::showMainUI(bool show, std::vector<wxButton*>& wxBtnVec, s
 		wxRadVec[2]->Hide();
 		wxRadVec[3]->Hide();
 		wxRadVec[4]->Hide();
+		wxRadVec[5]->Hide();
 	}
 }
 

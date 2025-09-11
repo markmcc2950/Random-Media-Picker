@@ -18,8 +18,9 @@ EVT_BUTTON(10005, onNoPromptButtonClicked)
 EVT_RADIOBUTTON(20001, onRadioViewNumClicked)
 EVT_RADIOBUTTON(20002, onRadioViewNumClicked)
 EVT_RADIOBUTTON(20003, onRadioViewNumClicked)
-EVT_RADIOBUTTON(20004, onRadioLightThemeClicked)
+EVT_RADIOBUTTON(20004, onRadioViewNumClicked)
 EVT_RADIOBUTTON(20005, onRadioLightThemeClicked)
+EVT_RADIOBUTTON(20006, onRadioLightThemeClicked)
 wxEND_EVENT_TABLE()
 
 extern RandomEpisode re;
@@ -80,6 +81,15 @@ void cMain::setNumToShow(int n) {
 	else {
 		m_radio3->Disable();
 	}
+	if (listSize > 50) {
+		if (!m_radio4->IsEnabled()) {
+			m_radio4->Enable();
+		}
+		m_radio4->Enable();
+	}
+	else {
+		m_radio4->Disable();
+	}
 
 	// Clear the list if it's been populated already
 	if (m_list2) {
@@ -125,11 +135,12 @@ void cMain::createUI() {
 	m_radio1 = new wxRadioButton(this, 20001, wxString::Format("%d", 10), wxPoint(100, 100), wxSize(10, 10), wxRB_GROUP);	// Show 10 recent episodes
 	m_radio2 = new wxRadioButton(this, 20002, wxString::Format("%d", 25), wxPoint(100, 100), wxSize(10, 10));				// Show 25 recent episodes
 	m_radio3 = new wxRadioButton(this, 20003, wxString::Format("%d", 50), wxPoint(100, 100), wxSize(10, 10));				// Show 50 recent episodes
-	m_radio4 = new wxRadioButton(this, 20004, wxString::Format("%s", wxString::FromUTF8("\U0001F4A1")), wxPoint(100, 100), wxSize(10, 10), wxRB_GROUP);	// Enable Light Mode
-	m_radio5 = new wxRadioButton(this, 20005, wxString::Format("%s", wxString::FromUTF8("\U0001F319")), wxPoint(100, 100), wxSize(10, 10));				// Enable Dark Mode
+	m_radio4 = new wxRadioButton(this, 20004, "All", wxPoint(100, 100), wxSize(10, 10));									// Show all recent episodes
+	m_radio5 = new wxRadioButton(this, 20005, wxString::Format("%s", wxString::FromUTF8("\U0001F4A1")), wxPoint(100, 100), wxSize(10, 10), wxRB_GROUP);	// Enable Light Mode
+	m_radio6 = new wxRadioButton(this, 20006, wxString::Format("%s", wxString::FromUTF8("\U0001F319")), wxPoint(100, 100), wxSize(10, 10));				// Enable Dark Mode
 
 	// Create our static text
-	m_label1 = new wxStaticText(this, wxID_ANY, "ARE YOU STILL THERE?", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
+	m_label1 = new wxStaticText(this, wxID_ANY, "ARE YOU STILL WATCHING?", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
 
 	// Create our lists
 	m_list1 = new wxListBox(this, wxID_ANY, wxPoint(100, 100), wxSize(100, 100));											// Most recent episode picked
@@ -144,8 +155,9 @@ void cMain::createUI() {
 	m_radio1->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", 10));
 	m_radio2->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", 25));
 	m_radio3->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", 50));
-	m_radio4->SetToolTip("Toggle Light Mode");
-	m_radio5->SetToolTip("Toggle Dark Mode");
+	m_radio4->SetToolTip(wxString::Format("All Episodes Viewed"));
+	m_radio5->SetToolTip("Toggle Light Mode");
+	m_radio6->SetToolTip("Toggle Dark Mode");
 
 	// Hide prompt-specific UI
 	m_btn4->Hide();
@@ -154,7 +166,7 @@ void cMain::createUI() {
 
 	// Add UI elements to their associative vectors
 	wxBtnVec = { m_btn1, m_btn2, m_btn3, m_btn4, m_btn5 };
-	wxRadVec = { m_radio1, m_radio2, m_radio3, m_radio4, m_radio5 };
+	wxRadVec = { m_radio1, m_radio2, m_radio3, m_radio4, m_radio5, m_radio6 };
 	wxListVec = { m_list1, m_list2, m_list3 };
 	wxTextVec = { m_label1 };
 
@@ -172,8 +184,8 @@ void cMain::initialSettings() {
 
 	m_radio1->SetValue(true);
 	m_radio1->SetFocus();
-	m_radio5->SetValue(true);
-	m_radio5->SetFocus();
+	m_radio6->SetValue(true);
+	m_radio6->SetFocus();
 
 	// Populate the directory where our media is located (if used before)
 	bool loadFile = dh.LoadPathFromFile(selectedDirectory);	
@@ -343,6 +355,9 @@ void cMain::onRadioViewNumClicked(wxCommandEvent& evt) {
 	case 20003:
 		setNumToShow(50);
 		break;
+	case 20004:
+		setNumToShow(9999);
+		break;
 	default:
 		break;
 	}
@@ -350,11 +365,11 @@ void cMain::onRadioViewNumClicked(wxCommandEvent& evt) {
 
 void cMain::onRadioLightThemeClicked(wxCommandEvent& evt) {
 	switch (evt.GetId()) {
-	case 20004:
+	case 20005:
 		ih.setLightMode();
 		lightMode = true;
 		break;
-	case 20005:
+	case 20006:
 		ih.setDarkMode();
 		lightMode = false;
 		break;

@@ -49,6 +49,7 @@ private:
 	wxRadioButton* m_radio3 = nullptr;
 	wxRadioButton* m_radio4 = nullptr;
 	wxRadioButton* m_radio5 = nullptr;
+	wxRadioButton* m_radio6 = nullptr;
 	wxListBox* m_list1 = nullptr;					// Lists
 	wxListBox* m_list2 = nullptr;
 	wxListBox* m_list3 = nullptr;
