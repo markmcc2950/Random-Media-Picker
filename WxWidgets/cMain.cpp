@@ -273,20 +273,20 @@ void cMain::selectRandomEpisode() {
 	m_list1->AppendString("SEARCHING...");
 
 	// Pull from the stored selected media directory
-	selectedDirectory = dh.getDirectory();
+	std::string currDir = dh.getDirectory();
 
 	// Find the file and folders
-	if (dh.findDirectoryPath(selectedDirectory, vlcPath, episodeList, filesToDisplay, randomValue, episodesViewedHash)) {
+	if (dh.findDirectoryPath(currDir, vlcPath, episodeList, filesToDisplay, randomValue, episodesViewedHash)) {
 		m_list1->Clear();
-		m_list1->AppendString(selectedDirectory);
+		m_list1->AppendString(currDir);
 
 		// Don't show the first episode, but update the list after each episode
-		if (selectedDirectory != "" && filesToDisplay > 0) {
+		if (currDir != "" && filesToDisplay > 0) {
 			m_list2->Clear();
 
 			// Append the new episode and reverse the list to show latest watched first
 			setNumToShow(filesToDisplay);
-			episodeList.push_back(selectedDirectory);			
+			episodeList.push_back(currDir);
 		}
 
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
@@ -300,12 +300,12 @@ void cMain::selectRandomEpisode() {
 		vlcPath = dh.normalizePath(vlcPath, "//", "\\");
 
 		// Store information in our hash and local file to reference that it's been watched, then open the file in VLC
-		re.storeRecentWatched(selectedDirectory, episodesViewedHash);
+		re.storeRecentWatched(currDir, episodesViewedHash);
 		re.openFile(vlcPath);
 	}
 	// If an episode wasn't found (counter limit hit), display an error in m_list1, reset loop counter, and re-enable the button
 	else {
-		std::string errorDisplay = "ERROR! Unable to find unviewed episode: " + selectedDirectory;
+		std::string errorDisplay = "ERROR! Unable to find unviewed episode: " + currDir;
 
 		m_list1->Clear();
 		m_list1->AppendString(errorDisplay);
@@ -396,8 +396,8 @@ void cMain::onRadioLightThemeClicked(wxCommandEvent& evt) {
 
 void cMain::onResize(wxSizeEvent& event) {
 	wxSize newSize = event.GetSize();
-	windowWidth = std::max(newSize.GetWidth(), 640);
-	windowHeight = std::max(newSize.GetHeight(), 320);
+	windowWidth = std::max(newSize.GetWidth(), minDimensions);
+	windowHeight = std::max(newSize.GetHeight(), minDimensions);
 
 	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);;
 
