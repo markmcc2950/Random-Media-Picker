@@ -42,8 +42,8 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 	wxRadVec[1]->SetPosition(wxPoint(windowWidth * 0.2, windowHeight * 0.8));
 	wxRadVec[2]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.8));
 	wxRadVec[3]->SetPosition(wxPoint(windowWidth * 0.4, windowHeight * 0.8));
-	wxRadVec[4]->SetPosition(wxPoint(windowWidth * 0.75, windowHeight * 0.8));
-	wxRadVec[5]->SetPosition(wxPoint(windowWidth * 0.8, windowHeight * 0.8));
+	wxRadVec[4]->SetPosition(wxPoint(windowWidth * 0.8, windowHeight * 0.8));
+	wxRadVec[5]->SetPosition(wxPoint(windowWidth * 0.85, windowHeight * 0.8));
 
 	// Set special prompt dimensions and locations
 	wxBtnVec[3]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.5));
@@ -108,8 +108,8 @@ void InterfaceHandler::setMediaDirectory(int fontSize, std::vector<wxListBox*>& 
 	int pathListLength = windowWidth * 0.0013 * pathLength;
 
 	// Re-populate the browse list with our new directory path and length, adjusting the UI components accordingly
-	wxListVec[2]->SetSize(textSize.GetWidth() + 20, textSize.GetHeight() + 10);
-	wxListVec[2]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - textSize.GetWidth() - 20, windowHeight * 0.075 + (buttonHeight * 1.15)));
+	wxListVec[2]->SetSize((textSize.GetWidth() * 1.1) + (5 * fontSize), textSize.GetHeight() + 10);
+	wxListVec[2]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - (textSize.GetWidth() * 1.1) - (5 * fontSize), windowHeight * 0.075 + (buttonHeight * 1.15)));
 }
 
 // Shows or hides the startup UI

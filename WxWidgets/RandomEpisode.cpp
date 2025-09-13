@@ -61,7 +61,7 @@ bool RandomEpisode::openFile(std::string episodePath) {
 }
 
 // Grabs all previously viewed episodes
-void RandomEpisode::retrieveAllViewed(std::stack<std::string>& episodeStack, std::vector<std::string>& episodeList, std::unordered_map<std::string, bool>& episodesViewedHash, int& filesToDisplay) {
+void RandomEpisode::retrieveAllViewed(std::vector<std::string>& episodeList, std::unordered_map<std::string, bool>& episodesViewedHash, int& filesToDisplay) {
 	std::ifstream file("EpisodesViewed.txt");
 
 	// If the file doesn't exist, create it and exit this function early as we don't have anything to pull
@@ -84,16 +84,6 @@ void RandomEpisode::retrieveAllViewed(std::stack<std::string>& episodeStack, std
 	}
 
 	file.close();
-
-	updateRecentWatched(episodeStack, episodeList, filesToDisplay);
-}
-
-void RandomEpisode::updateRecentWatched(std::stack<std::string>& episodeStack, std::vector<std::string>& episodeList, int& filesToDisplay) {
-	// Iterate only through the number of episodes viewed to prevent out of range index values
-	int i = episodeList.size() < filesToDisplay ? 0 : episodeList.size() - filesToDisplay;
-	for (i; i < episodeList.size(); i++) {
-		episodeStack.push(episodeList[i]);
-	}
 }
 
 // Add newly watched episodes to file and hash map

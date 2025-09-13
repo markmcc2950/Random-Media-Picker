@@ -54,8 +54,6 @@ private:
 	wxListBox* m_list2 = nullptr;
 	wxListBox* m_list3 = nullptr;
 	wxStaticText* m_label1 = nullptr;				// Static text
-	wxStaticText* m_label2 = nullptr;
-	wxStaticText* m_label3 = nullptr;
 
 	
 
@@ -65,7 +63,6 @@ private:
 	std::string selectedDirectory = "";
 
 	std::vector<std::string> recentWatched;
-	std::stack<std::string> episodeStack;
 	std::unordered_map<std::string, bool> episodesViewedHash;
 
 	int windowWidth = 900;							// Window dimensions

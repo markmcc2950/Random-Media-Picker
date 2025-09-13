@@ -182,7 +182,7 @@ void cMain::createUI() {
 
 void cMain::initialSettings() {
 	// Populate the recently watched list
-	re.retrieveAllViewed(episodeStack, episodeList, episodesViewedHash, filesToDisplay);
+	re.retrieveAllViewed(episodeList, episodesViewedHash, filesToDisplay);
 
 	setNumToShow(filesToDisplay);
 
@@ -285,10 +285,10 @@ void cMain::selectRandomEpisode() {
 			m_list2->Clear();
 
 			// Append the new episode and reverse the list to show latest watched first
-			
-			episodeList.push_back(selectedDirectory);	
 			setNumToShow(filesToDisplay);
+			episodeList.push_back(selectedDirectory);			
 		}
+
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
 		m_btn1->Enable();
@@ -301,7 +301,6 @@ void cMain::selectRandomEpisode() {
 
 		// Store information in our hash and local file to reference that it's been watched, then open the file in VLC
 		re.storeRecentWatched(selectedDirectory, episodesViewedHash);
-		re.updateRecentWatched(episodeStack, episodeList, filesToDisplay);
 		re.openFile(vlcPath);
 	}
 	// If an episode wasn't found (counter limit hit), display an error in m_list1, reset loop counter, and re-enable the button
