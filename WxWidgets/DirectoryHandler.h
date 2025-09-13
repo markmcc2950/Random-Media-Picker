@@ -21,6 +21,7 @@ private:
 	void saveBrowsePathToFile(const std::string& path);
 	bool findRandomFile(int& randomValue, int& fileCount, std::string& selectedDirectory, std::string& vlcPath, bool& isValidFolder, std::unordered_map<std::string, bool>& episodesViewed);
 	void findRandomFolder(int& randomValue, int& directoryCount, std::string& selectedDirectory);
+	bool isValidPath(std::string& path);
 };
 
 #endif

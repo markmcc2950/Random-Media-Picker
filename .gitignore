@@ -29,3 +29,5 @@
 *.log
 *.tlog
 *.lastbuildstate
+*.exe
+*.txt

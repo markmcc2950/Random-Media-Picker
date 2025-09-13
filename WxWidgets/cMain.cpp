@@ -1,7 +1,6 @@
 ﻿// Source: https://www.youtube.com/watch?v=FOIbK4bJKS8
 
 #include "cMain.h"
-#include "shobjidl_core.h"
 #include <algorithm>
 #include <iostream>
 #include <string>
