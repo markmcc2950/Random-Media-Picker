@@ -14,6 +14,8 @@ EVT_BUTTON(10002, onContinuousButtonClicked)
 EVT_BUTTON(10003, onBrowseButtonClicked)
 EVT_BUTTON(10004, onContinuousButtonClicked)
 EVT_BUTTON(10005, onNoPromptButtonClicked)
+EVT_BUTTON(10006, onOpenSettingsButtonClicked)
+EVT_BUTTON(10007, onCloseSettingsButtonClicked)
 EVT_RADIOBUTTON(20001, onRadioViewNumClicked)
 EVT_RADIOBUTTON(20002, onRadioViewNumClicked)
 EVT_RADIOBUTTON(20003, onRadioViewNumClicked)
@@ -26,7 +28,7 @@ extern RandomEpisode re;
 extern DirectoryHandler dh;
 InterfaceHandler ih;
 
-cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Episode Generator", wxDefaultPosition, wxDefaultSize) {
+cMain::cMain() : wxFrame(nullptr, wxID_ANY, "Random Media Picker", wxDefaultPosition, wxDefaultSize) {
 	// Create UI and initialize all settings (such as pulling info from our local list of stored viewed episodes)
 	createUI();
 	initialSettings();
@@ -41,22 +43,26 @@ cMain::~cMain() {
 		btn->Destroy();
 	}
 	// Destroy all radio buttons
-	for (auto* radBtn : wxRadVec) {
-		radBtn->Destroy();
+	for (auto* rad : wxRadVec) {
+		rad->Destroy();
 	}
 	// Destroy all lists
 	for (auto* list : wxListVec) {
 		list->Destroy();
 	}
 	// Destroy all static text elements
-	for (auto* staticText : wxTextVec) {
-		staticText->Destroy();
+	for (auto* text : wxTextVec) {
+		text->Destroy();
+	}
+	// Destroy all static line elements
+	for (auto* line : wxLineVec) {
+		line->Destroy();
 	}
 }
 
 void cMain::setNumToShow(int n) {
 	filesToDisplay = n;
-	int listSize = static_cast<int>(episodeList.size());
+	int listSize = episodeList.size();
 
 	// Enable or disable radio buttons based on the number of episodes recorded as viewed
 	if (listSize > 10) {
@@ -124,10 +130,14 @@ void cMain::createUI() {
 	// Create our buttons
 	m_btn1 = new wxButton(this, 10001, "Watch\nRandom", wxPoint(100, 100), wxSize(100, 100));
 	m_btn2 = new wxButton(this, 10002, "Watch\nContinuous", wxPoint(100, 100), wxSize(100, 100));
-	m_btn3 = new wxButton(this, 10003, "Select\nMedia Path", wxPoint(100, 100), wxSize(100, 100));
+	m_btn3 = new wxButton(this, 10003, "TV Shows\nMedia Path", wxPoint(100, 100), wxSize(100, 100));
 	m_btn4 = new wxButton(this, 10004, "Yes", wxPoint(100, 100), wxSize(100, 100));											// For our "Are You Still There?" prompt
 	m_btn5 = new wxButton(this, 10005, "No", wxPoint(100, 100), wxSize(100, 100));
-
+	m_btn6 = new wxButton(this, 10006, wxString::Format("%s", wxString::FromUTF8("\u2699")), wxPoint(100, 100), wxSize(100, 100));
+	s_btn1 = new wxButton(this, 10007, "Close\n", wxPoint(100, 100), wxSize(100, 100));
+	s_btn2 = new wxButton(this, 10008, "Media\nPaths", wxPoint(100, 100), wxSize(100, 100));
+	s_btn3 = new wxButton(this, 10009, "General\nSettings", wxPoint(100, 100), wxSize(100, 100));
+		
 	std::string emoji_string = u8"\U0001F4A1";
 
 	// Create our radio buttons
@@ -140,6 +150,10 @@ void cMain::createUI() {
 
 	// Create our static text
 	m_label1 = new wxStaticText(this, wxID_ANY, "ARE YOU STILL WATCHING?", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
+	s_label1 = new wxStaticText(this, wxID_ANY, "TV Shows Directory", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
+	s_label2 = new wxStaticText(this, wxID_ANY, "Movies Directory", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
+	s_label3 = new wxStaticText(this, wxID_ANY, "Additional Media Directory", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
+	s_label4 = new wxStaticText(this, wxID_ANY, "VLC Media Player Directory", wxPoint(50, 50), wxDefaultSize, wxALIGN_CENTER);
 
 	// Create our lists
 	m_list1 = new wxListBox(this, wxID_ANY, wxPoint(100, 100), wxSize(100, 100));											// Most recent episode picked
@@ -150,6 +164,11 @@ void cMain::createUI() {
 	m_btn1->SetToolTip("Play a Random Episode");
 	m_btn2->SetToolTip("Continuous Play Random Episodes");
 	m_btn3->SetToolTip("Select Your Media Path");
+	m_btn6->SetToolTip("Settings");
+	s_btn1->SetToolTip("Close Settings");
+	s_btn2->SetToolTip("Set various media paths");
+	s_btn3->SetToolTip("Set general\napplication settings");
+
 	// Radio buttons
 	m_radio1->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", 10));
 	m_radio2->SetToolTip(wxString::Format("%d Most Recent Episodes Viewed", 25));
@@ -158,23 +177,39 @@ void cMain::createUI() {
 	m_radio5->SetToolTip("Toggle Light Mode");
 	m_radio6->SetToolTip("Toggle Dark Mode");
 
+	// Static lines
+	s_line1 = new wxStaticLine(this, wxID_ANY, wxDefaultPosition, wxSize(-1, 100), wxLI_VERTICAL);
+
 	// Disable buttons until we have everything initialized
 	m_btn1->Disable();
 	m_btn2->Disable();
 
 	// Hide prompt-specific UI
+	m_btn3->Hide();
 	m_btn4->Hide();
 	m_btn5->Hide();
-	m_label1->Hide();
+	m_list3->Hide();
+	m_label1->Hide();	
+
+	// Hide settings menu UI
+	s_btn1->Hide();
+	s_btn2->Hide();
+	s_btn3->Hide();
+	s_line1->Hide();
+	s_label1->Hide();
+	s_label2->Hide();
+	s_label3->Hide();
+	s_label4->Hide();
 
 	// Add UI elements to their associative vectors
-	wxBtnVec = { m_btn1, m_btn2, m_btn3, m_btn4, m_btn5 };
+	wxBtnVec = { m_btn1, m_btn2, m_btn3, m_btn4, m_btn5, m_btn6, s_btn1, s_btn2, s_btn3 };
 	wxRadVec = { m_radio1, m_radio2, m_radio3, m_radio4, m_radio5, m_radio6 };
 	wxListVec = { m_list1, m_list2, m_list3 };
-	wxTextVec = { m_label1 };
+	wxTextVec = { m_label1, s_label1, s_label2, s_label3, s_label4 };
+	wxLineVec = { s_line1 };
 
 	std::pair<int&, int&> windowDimensions = { windowWidth, windowHeight };
-	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);
+	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, wxLineVec, selectedDirectory, windowDimensions);
 }
 
 
@@ -195,7 +230,7 @@ void cMain::initialSettings() {
 
 	if (loadFile) {
 		m_list3->SetToolTip(selectedDirectory);
-		ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);
+		ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, wxLineVec, selectedDirectory, windowDimensions);
 
 		m_btn1->Enable();
 		m_btn2->Enable();
@@ -260,7 +295,7 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 	}
 
 	if (pathLength > 0) {
-		ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);
+		ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, wxLineVec, selectedDirectory, windowDimensions);
 	}
 }
 
@@ -346,6 +381,14 @@ void cMain::onContinuousButtonClicked(wxCommandEvent& evt) {
 	evt.Skip();
 }
 
+void cMain::onOpenSettingsButtonClicked(wxCommandEvent& evt) {
+	ih.showSettingsUI(true, wxBtnVec, wxTextVec, wxListVec, wxRadVec, wxLineVec);
+}
+
+void cMain::onCloseSettingsButtonClicked(wxCommandEvent& evt) {
+	ih.showSettingsUI(false, wxBtnVec, wxTextVec, wxListVec, wxRadVec, wxLineVec);
+}
+
 void cMain::onNoPromptButtonClicked(wxCommandEvent& evt) {
 	watchingCts = false;
 
@@ -388,7 +431,7 @@ void cMain::onRadioLightThemeClicked(wxCommandEvent& evt) {
 	}
 
 	// Refresh and update the window
-	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);
+	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, wxLineVec, selectedDirectory, windowDimensions);
 	this->Refresh(true);
 	this->Update();
 }
@@ -398,7 +441,7 @@ void cMain::onResize(wxSizeEvent& event) {
 	windowWidth = std::max(newSize.GetWidth(), minDimensions);
 	windowHeight = std::max(newSize.GetHeight(), minDimensions);
 
-	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, selectedDirectory, windowDimensions);;
+	ih.setElementStyles(this, wxBtnVec, wxListVec, wxRadVec, wxTextVec, wxLineVec, selectedDirectory, windowDimensions);;
 
 	event.Skip();
 }

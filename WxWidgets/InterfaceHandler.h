@@ -2,6 +2,7 @@
 #define InterfaceHandler_h
 
 #include "wx/wx.h"
+#include "wx/statline.h"
 #include "DirectoryHandler.h"
 
 
@@ -12,8 +13,15 @@ public:
 		std::vector<wxListBox*>& wxListVec,
 		std::vector<wxRadioButton*>& wxRadVec,
 		std::vector<wxStaticText*>& wxTextVec,
+		std::vector<wxStaticLine*>& wxLineVec,
 		const std::string& selectedDirectory,
 		std::pair<int&, int&>& windowDimensions);
+	void showSettingsUI(bool show, 
+		std::vector<wxButton*>& wxBtnVec, 
+		std::vector<wxStaticText*>& wxTextVec, 
+		std::vector<wxListBox*>& wxListVec, 
+		std::vector<wxRadioButton*>& wxRadVec, 
+		std::vector<wxStaticLine*>& wxLineVec);
 	void setMediaDirectory(int fontSize, std::vector<wxListBox*>& wxListVec, const std::string& selectedDirectory);
 	void showMainUI(bool show, std::vector<wxButton*>& wxBtnVec, std::vector<wxListBox*>& wxListVec, std::vector<wxRadioButton*>& wxRadVec);
 	void showPromptUI(bool show, std::vector<wxButton*>& wxBtnVec, std::vector<wxStaticText*>& wxTextVec);
@@ -25,6 +33,7 @@ private:
 	wxColour colorDark = wxColour(40, 40, 40);
 	wxColour colorFG = wxColour(255, 255, 255);
 	wxColour colorBG = wxColour(40, 40, 40);
+	wxColour colorGrey = wxColour(128, 128, 128);
 
 	int buttonHeight = 0;							// Button dimensions
 	int buttonWidth = 0;

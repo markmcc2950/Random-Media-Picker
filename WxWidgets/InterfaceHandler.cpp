@@ -8,6 +8,7 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 	std::vector<wxListBox*>& wxListVec, 
 	std::vector<wxRadioButton*>& wxRadVec, 
 	std::vector<wxStaticText*>& wxTextVec,
+	std::vector<wxStaticLine*>& wxLineVec,
 	const std::string& selectedDirectory,
 	std::pair<int&, int&>& windowDimensions)
 {
@@ -18,6 +19,7 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 	int listFontSize = std::max(std::max(windowHeight * 1.25, windowWidth * 0.5) * 0.015, (double)minDimensions / 60);
 	wxFont textFont(std::max(windowWidth * 1.0 * 0.025, 6.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
 	wxFont btnFont(std::max(std::max(windowHeight, windowWidth) * 0.012, (double)minDimensions / 80), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
+	wxFont settingsBtnFont(std::max(windowHeight * 0.024, (double)minDimensions / 40), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_LIGHT);
 	wxFont listFont(listFontSize * 0.9, wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD);
 	wxFont radioFont(std::max(listFontSize * 0.5, 8.0), wxFONTFAMILY_DEFAULT, wxFONTSTYLE_NORMAL, wxFONTWEIGHT_BOLD, false, "Segoe UI Emoji");
 
@@ -33,7 +35,7 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 	// Set positions & dimensions based on current window size
 	wxBtnVec[0]->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.075));
 	wxBtnVec[1]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.075));
-	wxBtnVec[2]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - buttonWidth, windowHeight * 0.075));
+	wxBtnVec[5]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - (buttonHeight / 2), windowHeight * 0.075));		// Settings button
 	
 	wxListVec[0]->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.25));
 	wxListVec[1]->SetPosition(wxPoint(windowWidth * 0.1, windowHeight * 0.3));
@@ -49,26 +51,57 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 	wxBtnVec[3]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.5));
 	wxBtnVec[4]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.5), windowHeight * 0.5));
 
-	// "Are you still there" text and sizing
+	// "Are you still there" text and sizing ---------------------------------------------------------
 	wxTextVec[0]->SetPosition(wxPoint(windowWidth * 0.25, windowHeight * 0.3));
-	wxTextVec[0]->SetFont(textFont);
 	wxListVec[0]->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.045));
 	wxListVec[1]->SetSize(wxSize(windowWidth * 0.8, windowHeight * 0.4));
 
+	// Settings menu UI elements ---------------------------------------------------------------------
+	wxBtnVec[2]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.1));
+	wxBtnVec[6]->SetPosition(wxPoint(windowWidth * 0.05, windowHeight - (buttonHeight) - (windowHeight * 0.1)));
+	wxBtnVec[7]->SetPosition(wxPoint(windowWidth * 0.05, (windowHeight * 0.1)));
+	wxBtnVec[7]->SetWindowStyleFlag(wxBORDER_NONE);										// Disables the button border
+	wxBtnVec[8]->SetPosition(wxPoint(windowWidth * 0.05, (windowHeight * 0.25)));
+	wxBtnVec[8]->SetWindowStyleFlag(wxBORDER_NONE);
+	wxLineVec[0]->SetPosition(wxPoint(windowWidth * 0.25, windowHeight * 0.025));
+	wxLineVec[0]->SetSize(wxSize((windowWidth * 0.01), (windowHeight * 0.875)));
+	wxTextVec[1]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.025));
+	wxTextVec[2]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.225));
+	wxTextVec[3]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.425));
+	wxTextVec[4]->SetPosition(wxPoint(windowWidth * 0.3, windowHeight * 0.625));
+
 	// Handle m_list3 with its own function
 	setMediaDirectory(listFontSize, wxListVec, selectedDirectory);
-	//wxBtnVec[0]->Enable();
-	//wxBtnVec[1]->Enable();
 
 	// Button fonts and colors
 	for (auto* btn : wxBtnVec) {
-		// Set all to the standard button size
-		btn->SetSize(wxSize(buttonWidth, buttonHeight));
+		if (btn == wxBtnVec[5]) {
+			// Specially set the size for our settings button
+			btn->SetSize(wxSize(buttonHeight / 2, buttonHeight / 2));
+			btn->SetFont(settingsBtnFont);
 
-		// Set all fonts and colors
-		btn->SetFont(btnFont);
-		btn->SetBackgroundColour(colorBG);
-		btn->SetForegroundColour(colorFG);
+			btn->SetBackgroundColour(colorBG);
+			btn->SetForegroundColour(colorFG);
+		}
+		else if (btn == wxBtnVec[8]) {
+			// Set to the standard button size
+			btn->SetSize(wxSize(buttonWidth, buttonHeight));
+
+			// Set fonts and colors
+			btn->SetFont(btnFont);
+			btn->SetForegroundColour(colorGrey);
+			btn->SetBackgroundColour(colorBG);
+		}
+		else {
+			// Set all to the standard button size
+			btn->SetSize(wxSize(buttonWidth, buttonHeight));
+
+			// Set all fonts and colors
+			btn->SetFont(btnFont);
+
+			btn->SetBackgroundColour(colorBG);
+			btn->SetForegroundColour(colorFG);
+		}
 	}
 
 	// List fonts and colors
@@ -87,6 +120,7 @@ void InterfaceHandler::setElementStyles(wxFrame* frame,
 
 	// Static text color
 	for (auto* text : wxTextVec) {
+		text->SetFont(textFont);
 		text->SetForegroundColour(colorFG);
 	}
 }
@@ -109,7 +143,7 @@ void InterfaceHandler::setMediaDirectory(int fontSize, std::vector<wxListBox*>& 
 
 	// Re-populate the browse list with our new directory path and length, adjusting the UI components accordingly
 	wxListVec[2]->SetSize((textSize.GetWidth() * 1.1) + (5 * fontSize), textSize.GetHeight() + 10);
-	wxListVec[2]->SetPosition(wxPoint(windowWidth - (windowWidth * 0.1) - (textSize.GetWidth() * 1.1) - (5 * fontSize), windowHeight * 0.075 + (buttonHeight * 1.15)));
+	wxListVec[2]->SetPosition(wxPoint((windowWidth * 0.3) + (buttonWidth * 1.2), windowHeight * 0.11));
 }
 
 // Shows or hides the startup UI
@@ -117,10 +151,9 @@ void InterfaceHandler::showMainUI(bool show, std::vector<wxButton*>& wxBtnVec, s
 	if (show) {
 		wxBtnVec[0]->Show();
 		wxBtnVec[1]->Show();
-		wxBtnVec[2]->Show();
+		wxBtnVec[5]->Show();
 		wxListVec[0]->Show();
 		wxListVec[1]->Show();
-		wxListVec[2]->Show();
 
 		wxRadVec[0]->Show();
 		wxRadVec[1]->Show();
@@ -132,10 +165,9 @@ void InterfaceHandler::showMainUI(bool show, std::vector<wxButton*>& wxBtnVec, s
 	else {
 		wxBtnVec[0]->Hide();
 		wxBtnVec[1]->Hide();
-		wxBtnVec[2]->Hide();
+		wxBtnVec[5]->Hide();
 		wxListVec[0]->Hide();
 		wxListVec[1]->Hide();
-		wxListVec[2]->Hide();
 
 		wxRadVec[0]->Hide();
 		wxRadVec[1]->Hide();
@@ -157,6 +189,76 @@ void InterfaceHandler::showPromptUI(bool show, std::vector<wxButton*>& wxBtnVec,
 		wxBtnVec[3]->Hide();
 		wxBtnVec[4]->Hide();
 		wxTextVec[0]->Hide();
+	}
+}
+
+void InterfaceHandler::showSettingsUI(
+	bool show, 
+	std::vector<wxButton*>& wxBtnVec, 
+	std::vector<wxStaticText*>& wxTextVec, 
+	std::vector<wxListBox*>& wxListVec, 
+	std::vector<wxRadioButton*>& wxRadVec, 
+	std::vector<wxStaticLine*>& wxLineVec
+) {
+	if (show) {
+		// Hide main UI
+		wxBtnVec[0]->Hide();
+		wxBtnVec[1]->Hide();		
+		wxBtnVec[3]->Hide();
+		wxBtnVec[4]->Hide();
+		wxBtnVec[5]->Hide();
+
+		wxListVec[0]->Hide();
+		wxListVec[1]->Hide();		
+
+		wxTextVec[0]->Hide();
+
+		wxRadVec[0]->Hide();
+		wxRadVec[1]->Hide();
+		wxRadVec[2]->Hide();
+		wxRadVec[3]->Hide();
+		wxRadVec[4]->Hide();
+		wxRadVec[5]->Hide();
+
+		// Show settings UI
+		wxBtnVec[2]->Show();
+		wxBtnVec[6]->Show();
+		wxBtnVec[7]->Show();
+		wxBtnVec[8]->Show();
+		wxListVec[2]->Show();
+		wxLineVec[0]->Show();
+		wxTextVec[1]->Show();
+		wxTextVec[2]->Show();
+		wxTextVec[3]->Show();
+		wxTextVec[4]->Show();
+	}
+	else {
+		// Hide settings UI
+		wxBtnVec[2]->Hide();
+		wxBtnVec[6]->Hide();
+		wxBtnVec[7]->Hide();
+		wxBtnVec[8]->Hide();
+		wxListVec[2]->Hide();
+		wxLineVec[0]->Hide();
+		wxTextVec[1]->Hide();
+		wxTextVec[2]->Hide();
+		wxTextVec[3]->Hide();
+		wxTextVec[4]->Hide();
+
+		// Show main UI
+		wxBtnVec[0]->Show();
+		wxBtnVec[1]->Show();
+		wxBtnVec[5]->Show();
+
+		wxListVec[0]->Show();
+		wxListVec[1]->Show();
+
+		wxRadVec[0]->Show();
+		wxRadVec[1]->Show();
+		wxRadVec[2]->Show();
+		wxRadVec[3]->Show();
+		wxRadVec[4]->Show();
+		wxRadVec[5]->Show();
 	}
 }
 

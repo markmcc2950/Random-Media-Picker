@@ -1,5 +1,6 @@
 #pragma once
 #include "wx/wx.h"
+#include "wx/statline.h"
 #include <stack>
 #include <string>
 #include <unordered_map>
@@ -27,6 +28,8 @@ private:
 	void OnRandomButtonClicked(wxCommandEvent& evt);
 	void onBrowseButtonClicked(wxCommandEvent& evt);
 	void onContinuousButtonClicked(wxCommandEvent& evt);
+	void onOpenSettingsButtonClicked(wxCommandEvent& evt);
+	void onCloseSettingsButtonClicked(wxCommandEvent& evt);
 	void onNoPromptButtonClicked(wxCommandEvent& evt);
 	void onRadioViewNumClicked(wxCommandEvent& evt);
 	void onRadioLightThemeClicked(wxCommandEvent& evt);
@@ -37,13 +40,15 @@ private:
 	std::vector<wxRadioButton*> wxRadVec;
 	std::vector<wxListBox*> wxListVec;
 	std::vector<wxStaticText*> wxTextVec;
+	std::vector<wxStaticLine*> wxLineVec;
 
-	// wx UI Elements
+	// wx Member UI Elements
 	wxButton* m_btn1 = nullptr;						// Click buttons
 	wxButton* m_btn2 = nullptr;
 	wxButton* m_btn3 = nullptr;
 	wxButton* m_btn4 = nullptr;
 	wxButton* m_btn5 = nullptr;
+	wxButton* m_btn6 = nullptr;						// -- Settings button
 	wxRadioButton* m_radio1 = nullptr;				// Radio buttons
 	wxRadioButton* m_radio2 = nullptr;
 	wxRadioButton* m_radio3 = nullptr;
@@ -54,7 +59,16 @@ private:
 	wxListBox* m_list2 = nullptr;
 	wxListBox* m_list3 = nullptr;
 	wxStaticText* m_label1 = nullptr;				// Static text
+	wxStaticText* s_label1 = nullptr;
+	wxStaticText* s_label2 = nullptr;
+	wxStaticText* s_label3 = nullptr;
+	wxStaticText* s_label4 = nullptr;
+	wxStaticLine* s_line1 = nullptr;				// Static lines
 
+	// Settings Menu UI Elements
+	wxButton* s_btn1 = nullptr;						// -- Close settings
+	wxButton* s_btn2 = nullptr;						// -- Media Path settings
+	wxButton* s_btn3 = nullptr;						// -- Application settings
 	
 
 	std::string recentEpisode = "";
