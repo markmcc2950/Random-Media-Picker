@@ -314,7 +314,7 @@ bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::st
         ++loopCounter;
 
         // Terminate the search if we've gone for too long
-        if (loopCounter >= 10000) {
+        if (loopCounter >= 100000) {
             return false;
         }
     }

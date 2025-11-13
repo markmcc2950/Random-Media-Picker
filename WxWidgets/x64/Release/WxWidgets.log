@@ -1,7 +1,13 @@
-﻿  cMain.cpp
+﻿  DirectoryHandler.cpp
+C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\DirectoryHandler.cpp(262,15): warning C4244: 'argument': conversion from 'time_t' to 'unsigned int', possible loss of data
+  InterfaceHandler.cpp
+  RandomEpisode.cpp
+C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\RandomEpisode.cpp(42,15): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  cApp.cpp
+  cMain.cpp
   Generating code
-  1 of 1721 functions (<0.1%) were compiled, the rest were copied from previous compilation.
-    0 functions were new in current compilation
-    6 functions had inline decision re-evaluated but remain unchanged
+  29 of 1744 functions ( 1.7%) were compiled, the rest were copied from previous compilation.
+    13 functions were new in current compilation
+    58 functions had inline decision re-evaluated but remain unchanged
   Finished generating code
   WxWidgets.vcxproj -> C:\Users\markm\Documents\GitHub\Random-Media-Picker\x64\Release\RandomEpisodeViewer.exe

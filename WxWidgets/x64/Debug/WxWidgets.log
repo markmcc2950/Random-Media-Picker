@@ -1,19 +1,4 @@
 ﻿  cApp.cpp
   cMain.cpp
-  DirectoryHandler.cpp
-C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\DirectoryHandler.h(19,8): error C2039: 'vector': is not a member of 'std'
-  (compiling source file 'DirectoryHandler.cpp')
-      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\string(23,1):
-      see declaration of 'std'
-  
-C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\DirectoryHandler.h(19,8): error C2061: syntax error: identifier 'vector'
-  (compiling source file 'DirectoryHandler.cpp')
-  
-C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\DirectoryHandler.h(32,8): error C2039: 'unordered_map': is not a member of 'std'
-  (compiling source file 'DirectoryHandler.cpp')
-      C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.44.35207\include\string(23,1):
-      see declaration of 'std'
-  
-C:\Users\markm\Documents\GitHub\Random-Media-Picker\WxWidgets\DirectoryHandler.h(32,8): error C2061: syntax error: identifier 'unordered_map'
-  (compiling source file 'DirectoryHandler.cpp')
-  
+  Generating Code...
+  WxWidgets.vcxproj -> C:\Users\markm\Documents\GitHub\Random-Media-Picker\x64\Debug\RandomEpisodeViewer.exe

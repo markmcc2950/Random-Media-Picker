@@ -1,13 +1,42 @@
 #include "RandomEpisode.h"
 
 #include <time.h>
+#include <chrono>
 #include <fstream>
+#include <mfapi.h>
+#include <mfobjects.h>
+#include <mfplay.h>
+#include <mfreadwrite.h>
 #include <windows.h>
 
 #include "CipherHandler.h"
 
 CipherHandler ch;
 RandomEpisode re;
+
+double RandomEpisode::getVideoLength(const std::string& episodePath) {
+	// Convert our std::string into the proper format for this Windows API
+	std::wstring wide(episodePath.begin(), episodePath.end());
+	const wchar_t* filepath = wide.c_str();
+
+	IMFSourceReader* reader = nullptr;
+	MFStartup(MF_VERSION);
+
+	MFCreateSourceReaderFromURL(filepath, nullptr, &reader);
+
+	PROPVARIANT var;
+	reader->GetPresentationAttribute(MF_SOURCE_READER_MEDIASOURCE, MF_PD_DURATION, &var);
+
+	// Duration is in 100-nanosecond units
+	double duration_seconds = (double)var.uhVal.QuadPart / 10000000.0;
+
+	PropVariantClear(&var);
+	reader->Release();
+	MFShutdown();
+
+	return duration_seconds;
+
+}
 
 std::string RandomEpisode::tcharToString(TCHAR toConvert[]) {
 	int tstr_len = _tcslen(toConvert);																	// Get the length of TCHAR string
@@ -29,7 +58,11 @@ std::string RandomEpisode::showRecentEpisodes(int i) {
 	return recentEpisodesList[i];
 }
 
-bool RandomEpisode::openFile(std::string episodePath) {
+bool RandomEpisode::openFile(std::string episodePath, double episodeLength) {
+	// Get current time prior to starting the episode
+	std::chrono::steady_clock::time_point t1 = std::chrono::steady_clock::now();
+	double start_seconds = std::chrono::duration<double>(t1.time_since_epoch()).count();
+
 	// Get the application (VLC) to use
 	const char* appname = "C:\\Program Files\\VideoLAN\\VLC\\vlc.exe";
 
@@ -55,6 +88,15 @@ bool RandomEpisode::openFile(std::string episodePath) {
 	// Close process and thread handles
 	CloseHandle(processInfo.hProcess);
 	CloseHandle(processInfo.hThread);
+
+	// Get the current end time of the episode. Compare to the expected episode runtime and decide if the user closed prematurely
+	std::chrono::steady_clock::time_point t2 = std::chrono::steady_clock::now();
+	double end_seconds = std::chrono::duration<double>(t2.time_since_epoch()).count();
+	double totalTimeWatched = abs(end_seconds - start_seconds);
+
+	if ((totalTimeWatched * 0.95) < episodeLength) {
+		return false;
+	}
 
 	// Inform function call that we have returned from VLC player
 	return true;

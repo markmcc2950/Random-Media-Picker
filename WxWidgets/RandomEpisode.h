@@ -13,9 +13,11 @@ public:
 	std::string tcharToString(TCHAR toConvert[]);
 	std::string showRecentEpisodes(int i);
 
-	bool openFile(std::string episodePath);
+	bool openFile(std::string episodePath, double episodeLength);
 	void retrieveAllViewed(std::vector<std::string>& recentWatched, std::unordered_map<std::string, bool>& episodesViewedHash, int& filesToDisplay);
 	void storeRecentWatched(std::string write, std::unordered_map<std::string, bool>& episodesViewedHash);
+
+	double getVideoLength(const std::string& episodePath);
 private:
 	// Private variables
 	bool searching = true;

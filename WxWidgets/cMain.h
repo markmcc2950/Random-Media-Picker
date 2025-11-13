@@ -22,7 +22,7 @@ private:
 
 	void createUI();
 	void setNumToShow(int n);	
-	void selectRandomEpisode();
+	void selectRandomEpisode(bool& watched);
 
 	// Interaction-specific functions
 	void OnRandomButtonClicked(wxCommandEvent& evt);
@@ -86,6 +86,7 @@ private:
 	bool episodePicked = false;
 	bool watchingCts = false;											// If user is watching continuous
 	bool lightMode = false;												// Light Mode/Dark Mode
+	bool episodesWatched = false;
 
 	int directoryCount = 0;
 	int fileCount = 0;

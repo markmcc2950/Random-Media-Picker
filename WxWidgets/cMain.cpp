@@ -299,7 +299,7 @@ void cMain::onBrowseButtonClicked(wxCommandEvent& evt) {
 	}
 }
 
-void cMain::selectRandomEpisode() {
+void cMain::selectRandomEpisode(bool& watched) {
 	// Disable button and show we are searching
 	m_btn1->Disable();
 	m_btn2->Disable();
@@ -333,9 +333,12 @@ void cMain::selectRandomEpisode() {
 		vlcPath += "\\" + episodeName;
 		vlcPath = dh.normalizePath(vlcPath, "//", "\\");
 
+		double time = re.getVideoLength(vlcPath);
+		std::cout << time << std::endl;
+
 		// Store information in our hash and local file to reference that it's been watched, then open the file in VLC
 		re.storeRecentWatched(currDir, episodesViewedHash);
-		re.openFile(vlcPath);
+		re.openFile(vlcPath, time);
 	}
 	// If an episode wasn't found (counter limit hit), display an error in m_list1, reset loop counter, and re-enable the button
 	else {
@@ -352,7 +355,8 @@ void cMain::selectRandomEpisode() {
 
 // Pick one random episode
 void cMain::OnRandomButtonClicked(wxCommandEvent& evt) {
-	selectRandomEpisode();
+	selectRandomEpisode(episodesWatched);
+	episodesWatched = false;
 
 	evt.Skip();
 }
@@ -366,7 +370,14 @@ void cMain::onContinuousButtonClicked(wxCommandEvent& evt) {
 
 	while (watchingCts) {		
 		if (ctsCtr < maxCounter) {
-			selectRandomEpisode();
+			selectRandomEpisode(episodesWatched);
+			if (!episodesWatched) {
+				// Hide main UI, show prompt UI
+				ih.showMainUI(false, wxBtnVec, wxListVec, wxRadVec);
+				ih.showPromptUI(true, wxBtnVec, wxTextVec);
+
+				break;
+			}
 			ctsCtr++;
 		}
 		else {
