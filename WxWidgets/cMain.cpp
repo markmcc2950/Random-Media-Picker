@@ -338,7 +338,7 @@ void cMain::selectRandomEpisode(bool& watched) {
 
 		// Store information in our hash and local file to reference that it's been watched, then open the file in VLC
 		re.storeRecentWatched(currDir, episodesViewedHash);
-		re.openFile(vlcPath, time);
+		watched = re.openFile(vlcPath, time);
 	}
 	// If an episode wasn't found (counter limit hit), display an error in m_list1, reset loop counter, and re-enable the button
 	else {
@@ -363,6 +363,13 @@ void cMain::OnRandomButtonClicked(wxCommandEvent& evt) {
 
 // Pick 3 random episodes at a time before being prompted to continue
 void cMain::onContinuousButtonClicked(wxCommandEvent& evt) {
+	// Show our main UI briefly (in case of Continuous button clicked)
+	ih.showMainUI(true, wxBtnVec, wxListVec, wxRadVec);
+	ih.showPromptUI(false, wxBtnVec, wxTextVec);
+
+	this->Refresh(true);
+	this->Update();
+
 	ctsCtr = 0;																					// To keep track of our current loop
 	int maxCounter = 3;																			// Max number of episodes back to back before checking in on the user
 	watchingCts = true;

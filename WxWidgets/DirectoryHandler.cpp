@@ -147,8 +147,14 @@ std::string DirectoryHandler::getFileByIndex(const std::string& directoryPath, c
     try {
         // Iterate over the directory and collect file names
         for (const auto& entry : std::filesystem::directory_iterator(directoryPath)) {
-            if (entry.is_regular_file()) {
-                files.push_back(entry.path().filename().string());
+            auto extension = entry.path().extension();
+            if (entry.is_regular_file() && 
+                (extension == ".mkv" ||
+                extension == ".wav" ||
+                extension == ".mp4" ||
+                extension == ".wmv" ||
+                extension == ".avi")) {
+                files.push_back(entry.path().filename().string());              
             }
         }
 

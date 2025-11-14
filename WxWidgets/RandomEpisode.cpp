@@ -94,7 +94,7 @@ bool RandomEpisode::openFile(std::string episodePath, double episodeLength) {
 	double end_seconds = std::chrono::duration<double>(t2.time_since_epoch()).count();
 	double totalTimeWatched = abs(end_seconds - start_seconds);
 
-	if ((totalTimeWatched * 0.95) < episodeLength) {
+	if (totalTimeWatched < (episodeLength * 0.95)) {
 		return false;
 	}
 
