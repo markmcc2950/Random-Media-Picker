@@ -311,18 +311,6 @@ void cMain::selectRandomEpisode(bool& watched) {
 
 	// Find the file and folders
 	if (dh.findDirectoryPath(currDir, vlcPath, episodeList, filesToDisplay, randomValue, episodesViewedHash)) {
-		m_list1->Clear();
-		m_list1->AppendString(currDir);
-
-		// Don't show the first episode, but update the list after each episode
-		if (currDir != "" && filesToDisplay > 0) {
-			m_list2->Clear();
-
-			// Append the new episode and reverse the list to show latest watched first
-			setNumToShow(filesToDisplay);
-			episodeList.push_back(currDir);
-		}
-
 		// Reset our loop counter and re-enable our button to search again, exit from the loop
 		loopCounter = 0;
 		m_btn1->Enable();
@@ -336,9 +324,29 @@ void cMain::selectRandomEpisode(bool& watched) {
 		double time = re.getVideoLength(vlcPath);
 		std::cout << time << std::endl;
 
-		// Store information in our hash and local file to reference that it's been watched, then open the file in VLC
-		re.storeRecentWatched(currDir, episodesViewedHash);
+		// Open the file in VLC
 		watched = re.openFile(vlcPath, time);
+
+		m_list1->Clear();
+		// Store the episode as viewed only if the user watched through 95% of it
+		if (watched) {
+			// Don't show the first episode, but update the list after each episode
+			if (currDir != "" && filesToDisplay > 0) {
+				m_list2->Clear();
+
+				// Append the new episode and reverse the list to show latest watched first
+				setNumToShow(filesToDisplay);
+				episodeList.push_back(currDir);
+			}
+			// Update the "currently viewing" list			
+			m_list1->AppendString(currDir);
+
+			re.storeRecentWatched(currDir, episodesViewedHash);
+		}	
+		else {
+			m_list1->AppendString("EPISODE SKIPPED, NOT RECORDING");
+		}
+		
 	}
 	// If an episode wasn't found (counter limit hit), display an error in m_list1, reset loop counter, and re-enable the button
 	else {
