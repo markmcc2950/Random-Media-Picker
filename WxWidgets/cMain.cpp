@@ -379,7 +379,7 @@ void cMain::onContinuousButtonClicked(wxCommandEvent& evt) {
 	this->Update();
 
 	ctsCtr = 0;																					// To keep track of our current loop
-	int maxCounter = 3;																			// Max number of episodes back to back before checking in on the user
+	int maxCounter = 9999;																			// Max number of episodes back to back before checking in on the user
 	watchingCts = true;
 	m_list3->Hide();																			// Hide our directory path until back to normal
 

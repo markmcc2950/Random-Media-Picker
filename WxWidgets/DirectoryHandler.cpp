@@ -261,6 +261,7 @@ bool DirectoryHandler::findRandomFile(int& randomValue, int& fileCount, std::str
 
 bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::string& vlcPath, std::vector<std::string>& episodeList, int& filesToDisplay, int& randomValue, std::unordered_map<std::string, bool>& episodesViewedHash) {
     bool isValidFolder = true;
+    std::string originalDirectory = selectedDirectory;
 
     int directoryCount, fileCount = -1;
     int loopCounter = 0;
@@ -302,22 +303,23 @@ bool DirectoryHandler::findDirectoryPath(std::string& selectedDirectory, std::st
                 }
                 // If we have watched it, reset and continue searching
                 else {
-                    selectedDirectory = getDirectory();
+                    //selectedDirectory = getDirectory();
+                    selectedDirectory = originalDirectory;
                 }
             }
             // We selected an empty folder, reset search
             else {
-                selectedDirectory = getDirectory();
+                //selectedDirectory = getDirectory();
+                selectedDirectory = originalDirectory;
             }
         }
 
         ++loopCounter;
-        // Corner case: If we're too many folders deep, reset the search loop, reduce the loopCounter by half to not fully reset, but try not to get stuck in infinite loops
+        // Corner case: If we're too many folders deep, reset the search loop, try not to get stuck in infinite loops
         if (loopCounter >= 10 && isValidFolder) {
-            selectedDirectory = getDirectory();
+            //selectedDirectory = getDirectory();
+            selectedDirectory = originalDirectory;
         }
-
-        ++loopCounter;
 
         // Terminate the search if we've gone for too long
         if (loopCounter >= 100000) {
